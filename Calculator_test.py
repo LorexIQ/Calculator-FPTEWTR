@@ -49,12 +49,7 @@ def perfomance():
                         print('Прочность сечения обеспечена. Стержней: %s; Расстояние между стержней: %s;' %
                               (s_w_count - 1, first_row))
                         return True
-                    else:
-                        return False
-                else:
-                    return False
-    else:
-        return False
+    return False
 
 
 if not perfomance():
