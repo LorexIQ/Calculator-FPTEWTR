@@ -23,8 +23,8 @@ M_x = (M_xsup + M_xinf) / 2  # кНм. Расчётный сосредоточе
 M_y = (M_ysup + M_yinf) / 2  # кНм. Расчётный сосредоточенный момент в направлении y
 
 s_w_count = h_0 // s_w  # шаг размещения поперечной арматуры
-first_row = round(h_0 / s_w_count, 1)
-second_row = round((h_0 / s_w_count) + (((h_0 / (s_w_count - 1)) - (h_0 / s_w_count)) / 2), 1)
+first_row = round(h_0 / s_w_count, 1)  # h0/3
+second_row = round((h_0 / s_w_count) + (((h_0 / (s_w_count - 1)) - (h_0 / s_w_count)) / 2), 1)  # h0/2
 # арматура класса A240
 R_sw = 170  # МПа. Растяжение поперечной арматуры
 min_diameter = 6  # мм. Минимальный диаметр арматуры
@@ -33,19 +33,19 @@ q_sw = round((R_sw * A_sw) / s_w, 1)  # Н/мм. Предельное усили
 
 
 def perfomance():
-    if (M_x / W_bx) + (M_y / W_by) <= F / u:
-        if (F / u) + (M_x / W_bx) + (M_y / W_by) > R_bt * h_0:
+    if (M_x / W_bx) + (M_y / W_by) <= F / u:  # проверка условия 3.182
+        if (F / u) + (M_x / W_bx) + (M_y / W_by) > R_bt * h_0:  # проверка условия 3.182
             return False
         else:
-            if 0.25 * R_bt * h_0 > q_sw:
+            if 0.25 * R_bt * h_0 > q_sw:  # проверка согласно п.3.86
                 return False
             else:
-                if (F / u) + (M_x / W_bx) + (M_y / W_by) < R_bt * h_0 + 0.8 * q_sw:
+                if (F / u) + (M_x / W_bx) + (M_y / W_by) < R_bt * h_0 + 0.8 * q_sw:  # проверка условия 3.182
                     a_new = a + 2 * (second_row + 4 * s_w) + h_0
                     b_new = b + 2 * (second_row + 4 * s_w) + h_0
                     u_new, W_bx_new, W_by_new = fill_UWW(a_new, b_new)
-                    if ((F * 10 ** 3) / u_new) + ((M_x * 10 ** 6) / W_bx_new) + (
-                            (M_y * 10 ** 6) / W_by_new) < R_bt * h_0:
+                    if ((F * 10 ** 3) / u_new) + ((M_x * 10 ** 6) / W_bx_new) + \
+                            ((M_y * 10 ** 6) / W_by_new) < R_bt * h_0:  # проверка условия 3.182
                         print('Прочность сечения обеспечена. Стержней: %s; Расстояние между стержней: %s;' %
                               (s_w_count - 1, first_row))
                         return True
