@@ -2,8 +2,8 @@ a, b = 500, 800  # мм. Сечение
 h, h_0 = 220, 190  # мм. Высота и рабочая высота
 N = 800  # кН. Нагрузка передающаяся с перекрытия на колонну
 F = 800  # кН. Сосредоточенная продавливающая сила
-M_xsup, M_ysup = 70, 30  # кН.м
-M_xinf, M_yinf = 60, 27  # кН.м
+M_xsup, M_ysup = 70, 30  # кН.м 70, 30
+M_xinf, M_yinf = 60, 27  # кН.м 60, 27
 s_w = 60  # мм. Требование шага поперечной арматуры
 # бетон класса B30
 R_bt = 1.15  # МПа
@@ -33,24 +33,42 @@ q_sw = round((R_sw * A_sw) / s_w, 1)  # Н/мм. Предельное усили
 
 
 def perfomance():
-    if (M_x / W_bx) + (M_y / W_by) <= F / u:  # проверка условия 3.182
-        if (F / u) + (M_x / W_bx) + (M_y / W_by) > R_bt * h_0:  # проверка условия 3.182
-            return False
-        else:
-            if 0.25 * R_bt * h_0 > q_sw:  # проверка согласно п.3.86
-                return False
+    global M_xinf, M_xsup, M_yinf, M_ysup, M_x, M_y, q_sw
+    return_line = ''
+    if (M_x / W_bx) + (M_y / W_by) > F / u:  # проверка условия 3.182
+        return_line += 'Была выполнена корректировка '
+        difference = ((M_x / W_bx) + (M_y / W_by)) - (F / u)
+        if (M_x / W_bx) > (M_y / W_by):
+            need_to_get = M_x - (W_bx * difference)
+            if M_xinf > M_xsup:
+                M_xinf = need_to_get * 2 - M_xsup
+                return_line += 'M_xinf. Новое значение: %s' % M_xinf
             else:
-                if (F / u) + (M_x / W_bx) + (M_y / W_by) < R_bt * h_0 + 0.8 * q_sw:  # проверка условия 3.182
-                    a_new = a + 2 * (second_row + 4 * s_w) + h_0
-                    b_new = b + 2 * (second_row + 4 * s_w) + h_0
-                    u_new, W_bx_new, W_by_new = fill_UWW(a_new, b_new)
-                    if ((F * 10 ** 3) / u_new) + ((M_x * 10 ** 6) / W_bx_new) + \
-                            ((M_y * 10 ** 6) / W_by_new) < R_bt * h_0:  # проверка условия 3.182
-                        print('Прочность сечения обеспечена. Стержней: %s; Расстояние между стержней: %s;' %
-                              (s_w_count - 1, first_row))
-                        return True
-    return False
-
-
-if not perfomance():
-    print('Условия не выполнены!')
+                M_xsup = need_to_get * 2 - M_xinf
+                return_line += 'M_xsup. Новое значение: %s' % M_xsup
+            M_x = (M_xsup + M_xinf) / 2
+        else:
+            need_to_get = M_y - (W_by * difference)
+            if M_yinf > M_ysup:
+                M_yinf = need_to_get * 2 - M_ysup
+                return_line += 'M_yinf. Новое значение: %s' % M_yinf
+            else:
+                M_ysup = need_to_get * 2 - M_yinf
+                return_line += 'M_ysup. Новое значение: %s' % M_ysup
+            M_y = (M_ysup + M_yinf) / 2
+        return_line += '\n'
+    if (F / u) + (M_x / W_bx) + (M_y / W_by) > R_bt * h_0:  # проверка условия 3.182
+        return 'Прочность не обеспечена, следует увеличить площадь сепчения.'
+    else:
+        if 0.25 * R_bt * h_0 > q_sw:  # проверка согласно п.3.86
+            q_sw = 0  # поперечную арматуру в расчете не учитываем
+        if (F / u) + (M_x / W_bx) + (M_y / W_by) < R_bt * h_0 + 0.8 * q_sw:  # проверка условия 3.182
+            a_new = a + 2 * (second_row + 4 * s_w) + h_0
+            b_new = b + 2 * (second_row + 4 * s_w) + h_0
+            u_new, W_bx_new, W_by_new = fill_UWW(a_new, b_new)
+            print(((F * 10 ** 3) / u_new), ((M_x * 10 ** 6) / W_bx_new), ((M_y * 10 ** 6) / W_by_new), R_bt * h_0)
+            if ((F * 10 ** 3) / u_new) + ((M_x * 10 ** 6) / W_bx_new) + \
+                    ((M_y * 10 ** 6) / W_by_new) < R_bt * h_0:  # проверка условия 3.182
+                return return_line + 'Прочность сечения обеспечена. Стержней: %s; Расстояние между стержней: %s;' % \
+                       (s_w_count - 1, first_row)
+    return 'Условия не выполнены!'
