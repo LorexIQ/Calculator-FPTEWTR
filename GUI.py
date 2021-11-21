@@ -1,5 +1,7 @@
 from PyQt5 import QtCore, QtGui, QtWidgets
 
+from Calculations.calculationsf import Calculate
+
 
 class ResultMenu(QtWidgets.QWidget):
     def __init__(self, button_1, button_2, info, *args):
@@ -298,16 +300,11 @@ class WinProgram(object):
                                                QtWidgets.QMessageBox.Ok)
                 return False
         result_tuple = self._create_set(array_lines)  # <---- Финальный кортёж
+        calc = Calculate()
         if self._status_mode == 1:
-            self._call_result_menu(*('1', 1))  # Вызови функцию с прутками и передай туда result_tuple
+            self._call_result_menu(*(calc.сalculate_with_reinf(result_tuple), calc.get_status()))  
         elif self._status_mode == 2:
-            self._call_result_menu(*('2', 2))  # Вызови функцию без прутков и передай туда result_tuple
-        # Функции вернут строки. Придуймай, чтобы возвращали ещё и цифру состояния в кортеже:
-        # 1 - Ok
-        # 2 - Warming
-        # 3 - Critical
-        # Передай результат в функцию call_result_menu(*(str, int))
-        # По Окончанию, комментарии сотри
+            self._call_result_menu(*(calc.сalculate_without_reinf(result_tuple), calc.get_status()))  
 
     def _call_result_menu(self, msg, type_screen):
         self._result_menu.change_img(type_screen)
