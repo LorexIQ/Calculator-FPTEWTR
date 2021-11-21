@@ -1,7 +1,5 @@
 from PyQt5 import QtCore, QtGui, QtWidgets
-
 from Calculations.calculationsf import Calculate
-
 
 class ResultMenu(QtWidgets.QWidget):
     def __init__(self, button_1, button_2, info, *args):
@@ -59,7 +57,6 @@ class ResultMenu(QtWidgets.QWidget):
         self.button_2.setEnabled(True)
         self.info.show()
         self.hide()
-
 
 class CustonLineEdit:
     def __init__(self):
