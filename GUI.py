@@ -4,6 +4,7 @@ from PyQt5 import QtCore, QtGui, QtWidgets
 class CustonLineEdit:
     def __init__(self):
         self.state = False
+        self.enable = True
 
     def initUi(self, set_coord, title, title_type, font_size, centralwidget):
         x, y = set_coord
@@ -47,15 +48,19 @@ class CustonLineEdit:
     # 1 - Ничего не введено
     # 2 - Ввод корректен
     # 3 - Ошибка формата
+    # 4 - Выключено
     def editState(self, state):
         self.state = False
         if state == 1:
-            self.background.setPixmap(QtGui.QPixmap("imgs/normal.jpg"))
+            self.background.setPixmap(QtGui.QPixmap("imgs/lineEdit/normal.jpg"))
         elif state == 2:
-            self.background.setPixmap(QtGui.QPixmap("imgs/ok.jpg"))
+            self.background.setPixmap(QtGui.QPixmap("imgs/lineEdit/ok.jpg"))
             self.state = True
-        else:
-            self.background.setPixmap(QtGui.QPixmap("imgs/error.jpg"))
+        elif state == 3:
+            self.background.setPixmap(QtGui.QPixmap("imgs/lineEdit/error.jpg"))
+        elif state == 4:
+            self.state = True
+            self.background.setPixmap(QtGui.QPixmap("imgs/lineEdit/falsed.jpg"))
 
     def format_line(self):
         t = self.lineEdit.text()
@@ -66,12 +71,27 @@ class CustonLineEdit:
         else:
             self.editState(3)
 
+    def change_enabled(self):
+        if self.enable:
+            self.lineEdit.setEnabled(False)
+            self.editState(4)
+            self.enable = False
+        else:
+            self.lineEdit.setEnabled(True)
+            self.enable = True
+            self.format_line()
+
 
 class Ui_MainWindow(object):
     def __init__(self):
         self.status_mode = 1
 
     def setupUi(self, MainWindow):
+        self.font = QtGui.QFont()
+        self.font.setFamily("Open Sans Condensed")
+        self.font.setBold(False)
+        self.font.setWeight(50)
+
         def initWindowMode(info_edit_lines):
             window = QtWidgets.QWidget(self.centralwidget)
             window.setGeometry(0, 50, 545, 435)
@@ -82,20 +102,25 @@ class Ui_MainWindow(object):
             return window, array_lines
 
         def initButtonMode(title, widget, layout, css):
-            font = QtGui.QFont()
-            font.setFamily("Open Sans Condensed")
-            font.setPointSize(14)
-            font.setBold(False)
-            font.setWeight(50)
+            self.font.setPointSize(14)
             button = QtWidgets.QPushButton(widget)
             button.setObjectName(title)
             button.setMinimumSize(QtCore.QSize(150, 35))
             button.setStyleSheet(css)
             button.setText(title)
-            button.setFont(font)
-            button.clicked.connect(self.change_mode)
+            button.setFont(self.font)
+            button.clicked.connect(lambda: self.change_mode(title))
             layout.addWidget(button)
             return button
+
+        def initCheckBox(height, place, lines):
+            lines[-1].change_enabled()
+            selector = QtWidgets.QCheckBox(place)
+            selector.setGeometry(275, height, 45, 45)
+            selector.setStyleSheet('QCheckBox::indicator {width:  45px; height: 45px;}'
+                                   'QCheckBox::indicator:checked {image: url(imgs/checkbox/checked.jpg);}'
+                                   'QCheckBox::indicator:unchecked {image: url(imgs/checkbox/unchecked.jpg);}')
+            selector.stateChanged.connect(lines[-1].change_enabled)
 
         MainWindow.setObjectName("MainWindow")
         MainWindow.resize(800, 550)
@@ -114,8 +139,8 @@ class Ui_MainWindow(object):
         self.without_reinf_button = initButtonMode('WITHOUT REINF', self.widget, self.horizontalLayout,
                                                    "background-color: #fff; border: 1px solid #000;")
 
-        self.with_reinf, self.with_reinf_lines = initWindowMode([[(20, 20), 'a', 'мм', 16],
-                                                                 [(20, 70), 'b', 'мм', 16],
+        self.with_reinf, self.with_reinf_lines = initWindowMode([[(20, 20), 'h', 'мм', 16],
+                                                                 [(20, 70), 'a', 'мм', 16],
                                                                  [(275, 70), 'b', 'мм', 16],
                                                                  [(20, 120), 'N', 'кН', 16],
                                                                  [(20, 170), 'M_x.sup', 'кН.м', 12],
@@ -125,34 +150,53 @@ class Ui_MainWindow(object):
                                                                  [(20, 270), 's_w', 'мм', 16],
                                                                  [(20, 320), 'R_bt', 'МПа', 16],
                                                                  [(20, 370), 'h_0', 'мм', 16]])
+        initCheckBox(370, self.with_reinf, self.with_reinf_lines)
 
-        self.without_reinf, self.without_reinf_lines = initWindowMode([[(20, 20), 'a', 'мм', 16],
-                                                                       [(20, 70), 'b', 'мм', 16],
+        self.without_reinf, self.without_reinf_lines = initWindowMode([[(20, 20), 'h', 'мм', 16],
+                                                                       [(20, 70), 'a', 'мм', 16],
                                                                        [(275, 70), 'b', 'мм', 16],
                                                                        [(20, 120), 'N', 'кН', 16],
-                                                                       [(20, 170), 'M_sup', 'кН.м', 16],
-                                                                       [(275, 170), 'M_sup', 'кН.м', 16],
+                                                                       [(20, 170), 'M_sup', 'кН.м', 14],
+                                                                       [(275, 170), 'M_sup', 'кН.м', 14],
                                                                        [(20, 220), 'x_0', 'мм', 16],
                                                                        [(20, 270), 'R_bt', 'МПа', 16],
                                                                        [(20, 320), 'h_0', 'мм', 16]])
-        self.with_reinf.hide()
+        initCheckBox(320, self.without_reinf, self.without_reinf_lines)
+        self.without_reinf.hide()
 
         self.start_calculations = QtWidgets.QPushButton(self.centralwidget)
         self.start_calculations.setGeometry(350, 450, 200, 40)
-        self.start_calculations.setText('Тест')
+        self.start_calculations.setText('CALCULATE')
+        self.start_calculations.setStyleSheet("background-color: #99d9ea; border: 1px solid #000")
+        self.font.setPointSize(14)
+        self.start_calculations.setFont(self.font)
         self.start_calculations.clicked.connect(self.submit_enter)
 
         MainWindow.setCentralWidget(self.centralwidget)
         self.retranslateUi(MainWindow)
         QtCore.QMetaObject.connectSlotsByName(MainWindow)
 
-    def change_mode(self):
-        pass
+    def change_mode(self, title):
+        def change_states(place_1, place_2):
+            place_1[0].show()
+            place_1[1].setStyleSheet("background-color: #97ff88; border: 1px solid #000;")
+            place_2[0].hide()
+            place_2[1].setStyleSheet("background-color: #fff; border: 1px solid #000;")
+
+        if title == 'WITH REINF':
+            change_states((self.with_reinf, self.with_reinf_button), (self.without_reinf, self.without_reinf_button))
+            self.status_mode = 1
+        elif title == 'WITHOUT REINF':
+            change_states((self.without_reinf, self.without_reinf_button), (self.with_reinf, self.with_reinf_button))
+            self.status_mode = 2
 
     def submit_enter(self):
+        self.array_lines = self.with_reinf_lines if self.status_mode == 1 else self.without_reinf_lines
         for i in self.array_lines:
             if i.state is False:
+                print('соси')
                 return False
+        print('красава')
         return True
 
     def retranslateUi(self, MainWindow):
