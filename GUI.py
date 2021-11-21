@@ -1,6 +1,64 @@
 from PyQt5 import QtCore, QtGui, QtWidgets
 
 
+class ResultMenu(QtWidgets.QWidget):
+    def __init__(self, button_1, button_2, info, *args):
+        QtWidgets.QWidget.__init__(self, *args)
+        self.button_1 = button_1
+        self.button_2 = button_2
+        self.info = info
+        self._initUi()
+
+    def _initUi(self):
+        font = QtGui.QFont()
+        font.setFamily("Open Sans Condensed")
+        font.setPointSize(16)
+        font.setBold(False)
+        font.setWeight(50)
+
+        self.setGeometry(0, 50, 856, 510)
+        self._img_result = QtWidgets.QLabel(self)
+        self._img_result.setGeometry(20, 20, 816, 395)
+        self._title = QtWidgets.QLabel(self)
+        self._title.setGeometry(40, 40, 776, 355)
+        self._title.setAlignment(QtCore.Qt.AlignCenter)
+        font.setPointSize(20)
+        self._title.setFont(font)
+
+        back = QtWidgets.QPushButton(self)
+        back.setGeometry(328, 435, 200, 40)
+        back.setText('BACK')
+        back.setStyleSheet("background-color: #fffaea; border: 1px solid #000")
+        font.setPointSize(16)
+        back.setFont(font)
+        back.clicked.connect(self.close_win)
+
+        self.hide()
+
+    def change_img(self, img):
+        if img == 1:
+            self._img_result.setPixmap(QtGui.QPixmap('imgs/result/ok.jpg'))
+        elif img == 2:
+            self._img_result.setPixmap(QtGui.QPixmap('imgs/result/warming.jpg'))
+        elif img == 3:
+            self._img_result.setPixmap(QtGui.QPixmap('imgs/result/critical.jpg'))
+
+    def set_title(self, title):
+        self._title.setText(title)
+
+    def call(self):
+        self.button_1.setEnabled(False)
+        self.button_2.setEnabled(False)
+        self.info.hide()
+        self.show()
+
+    def close_win(self):
+        self.button_1.setEnabled(True)
+        self.button_2.setEnabled(True)
+        self.info.show()
+        self.hide()
+
+
 class CustonLineEdit:
     def __init__(self):
         self._state = False
@@ -36,12 +94,7 @@ class CustonLineEdit:
         label_unit.setObjectName("label_unit")
         label_object = QtWidgets.QLabel(centralwidget)
         label_object.setGeometry(QtCore.QRect(x, y + 6, 71, 31))
-        sizePolicy = QtWidgets.QSizePolicy(QtWidgets.QSizePolicy.Preferred, QtWidgets.QSizePolicy.Preferred)
-        sizePolicy.setHorizontalStretch(0)
-        sizePolicy.setVerticalStretch(0)
-        sizePolicy.setHeightForWidth(label_object.sizePolicy().hasHeightForWidth())
         font.setPointSize(font_size)
-        label_object.setSizePolicy(sizePolicy)
         label_object.setFont(font)
         label_object.setAlignment(QtCore.Qt.AlignCenter)
         label_object.setObjectName("label_object")
@@ -86,7 +139,7 @@ class CustonLineEdit:
             self._format_line()
 
 
-class Ui_MainWindow(object):
+class WinProgram(object):
     def __init__(self):
         self._status_mode = 1
 
@@ -181,20 +234,20 @@ class Ui_MainWindow(object):
         with_img_scheme.setGeometry(545, 20, 291, 395)
         with_img_scheme.setPixmap(QtGui.QPixmap("imgs/with_scheme.jpg"))
 
-        self.without_reinf, self.without_reinf_lines = initWindowMode([[(20, 20), 'h', 'мм', 16],
-                                                                       [(20, 70), 'a', 'мм', 16],
-                                                                       [(275, 70), 'b', 'мм', 16],
-                                                                       [(20, 120), 'N', 'кН', 16],
-                                                                       [(20, 170), 'M_sup', 'кН.м', 14],
-                                                                       [(275, 170), 'M_sup', 'кН.м', 14],
-                                                                       [(20, 220), 'x_0', 'мм', 16],
-                                                                       [(20, 270), 'R_bt', 'МПа', 16],
-                                                                       [(20, 320), 'h_0', 'мм', 16]])
-        initCheckBox(320, self.without_reinf, self.without_reinf_lines)
-        without_img_scheme = QtWidgets.QLabel(self.without_reinf)
+        self._without_reinf, self._without_reinf_lines = initWindowMode([[(20, 20), 'h', 'мм', 16],
+                                                                         [(20, 70), 'a', 'мм', 16],
+                                                                         [(275, 70), 'b', 'мм', 16],
+                                                                         [(20, 120), 'N', 'кН', 16],
+                                                                         [(20, 170), 'M_sup', 'кН.м', 14],
+                                                                         [(275, 170), 'M_sup', 'кН.м', 14],
+                                                                         [(20, 220), 'x_0', 'мм', 16],
+                                                                         [(20, 270), 'R_bt', 'МПа', 16],
+                                                                         [(20, 320), 'h_0', 'мм', 16]])
+        initCheckBox(320, self._without_reinf, self._without_reinf_lines)
+        without_img_scheme = QtWidgets.QLabel(self._without_reinf)
         without_img_scheme.setGeometry(545, 20, 291, 395)
         without_img_scheme.setPixmap(QtGui.QPixmap("imgs/without_scheme.jpg"))
-        self.without_reinf.hide()
+        self._without_reinf.hide()
 
         start_calculations = QtWidgets.QPushButton(self._centralwidget)
         start_calculations.setGeometry(328, 485, 200, 40)
@@ -203,6 +256,9 @@ class Ui_MainWindow(object):
         self._font.setPointSize(14)
         start_calculations.setFont(self._font)
         start_calculations.clicked.connect(self._submit_enter)
+
+        self._result_menu = ResultMenu(self._with_reinf_button, self._without_reinf_button, self._info_label,
+                                       self._centralwidget)
 
         MainWindow.setCentralWidget(self._centralwidget)
         MainWindow.setWindowTitle('FPTEWTR')
@@ -213,7 +269,7 @@ class Ui_MainWindow(object):
         timed = []
         for i in lines:
             timed.append(int(i.lineEdit.text()) if i.lineEdit.text() != '' else None)
-        tuple(timed)  # Это передать в класс
+        return tuple(timed)
 
     def _change_mode(self, title):
         def change_states(place_1, place_2):
@@ -223,20 +279,37 @@ class Ui_MainWindow(object):
             place_2[1].setStyleSheet("background-color: #fff; border: 1px solid #000;")
 
         if title == 'WITH REINF':
-            change_states((self._with_reinf, self._with_reinf_button), (self.without_reinf, self._without_reinf_button))
+            change_states((self._with_reinf, self._with_reinf_button),
+                          (self._without_reinf, self._without_reinf_button))
             self._info_label.setToolTip(self._info['with'])
             self._status_mode = 1
         elif title == 'WITHOUT REINF':
-            change_states((self.without_reinf, self._without_reinf_button), (self._with_reinf, self._with_reinf_button))
+            change_states((self._without_reinf, self._without_reinf_button),
+                          (self._with_reinf, self._with_reinf_button))
             self._info_label.setToolTip(self._info['without'])
             self._status_mode = 2
 
     def _submit_enter(self):
-        self.array_lines = self._with_reinf_lines if self._status_mode == 1 else self.without_reinf_lines
-        for i in self.array_lines:
+        array_lines = self._with_reinf_lines if self._status_mode == 1 else self._without_reinf_lines
+        for i in array_lines:
             if i.get_state() is False:
                 QtWidgets.QMessageBox.critical(self._centralwidget, 'Ошибка введённых данных!',
                                                "Заполнены не все поля или введён неверный тип данных",
                                                QtWidgets.QMessageBox.Ok)
                 return False
-        self._create_set(self.array_lines)
+        result_tuple = self._create_set(array_lines)  # <---- Финальный кортёж
+        if self._status_mode == 1:
+            self._call_result_menu(*('1', 1))  # Вызови функцию с прутками и передай туда result_tuple
+        elif self._status_mode == 2:
+            self._call_result_menu(*('2', 2))  # Вызови функцию без прутков и передай туда result_tuple
+        # Функции вернут строки. Придуймай, чтобы возвращали ещё и цифру состояния в кортеже:
+        # 1 - Ok
+        # 2 - Warming
+        # 3 - Critical
+        # Передай результат в функцию call_result_menu(*(str, int))
+        # По Окончанию, комментарии сотри
+
+    def _call_result_menu(self, msg, type_screen):
+        self._result_menu.change_img(type_screen)
+        self._result_menu.set_title(msg)
+        self._result_menu.call()
