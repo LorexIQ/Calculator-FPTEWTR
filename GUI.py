@@ -3,8 +3,11 @@ from PyQt5 import QtCore, QtGui, QtWidgets
 
 class CustonLineEdit:
     def __init__(self):
-        self.state = False
-        self.enable = True
+        self._state = False
+        self._enable = True
+
+    def get_state(self):
+        return self._state
 
     def initUi(self, set_coord, title, title_type, font_size, centralwidget):
         x, y = set_coord
@@ -17,7 +20,7 @@ class CustonLineEdit:
         self.background.setGeometry(QtCore.QRect(x, y, 250, 45))
         self.background.setText("")
         self.background.setObjectName("background")
-        self.editState(1)
+        self._editState(1)
         self.lineEdit = QtWidgets.QLineEdit(centralwidget)
         self.lineEdit.setGeometry(QtCore.QRect(x + 75, y + 2, 126, 41))
         self.lineEdit.setFont(font)
@@ -25,7 +28,7 @@ class CustonLineEdit:
                                     "background-color: rgba(0,0,0,0);")
         self.lineEdit.setMaxLength(10)
         self.lineEdit.setObjectName("lineEdit")
-        self.lineEdit.textChanged.connect(self.format_line)
+        self.lineEdit.textChanged.connect(self._format_line)
         label_unit = QtWidgets.QLabel(centralwidget)
         label_unit.setGeometry(QtCore.QRect(x + 200, y + 1, 51, 41))
         label_unit.setFont(font)
@@ -44,72 +47,89 @@ class CustonLineEdit:
         label_object.setObjectName("label_object")
         label_unit.setText(title_type)
         label_object.setText(title)
+        self.background.setToolTip('test')
 
     # 1 - Ничего не введено
     # 2 - Ввод корректен
     # 3 - Ошибка формата
     # 4 - Выключено
-    def editState(self, state):
-        self.state = False
+    def _editState(self, state):
+        self._state = False
         if state == 1:
             self.background.setPixmap(QtGui.QPixmap("imgs/lineEdit/normal.jpg"))
         elif state == 2:
             self.background.setPixmap(QtGui.QPixmap("imgs/lineEdit/ok.jpg"))
-            self.state = True
+            self._state = True
         elif state == 3:
             self.background.setPixmap(QtGui.QPixmap("imgs/lineEdit/error.jpg"))
         elif state == 4:
-            self.state = True
+            self._state = True
             self.background.setPixmap(QtGui.QPixmap("imgs/lineEdit/falsed.jpg"))
 
-    def format_line(self):
+    def _format_line(self):
         t = self.lineEdit.text()
         if t == '':
-            self.editState(1)
+            self._editState(1)
         elif t.isdigit() and int(t) != 0:
-            self.editState(2)
+            self._editState(2)
         else:
-            self.editState(3)
+            self._editState(3)
 
     def change_enabled(self):
-        if self.enable:
+        if self._enable:
             self.lineEdit.setEnabled(False)
-            self.editState(4)
-            self.enable = False
+            self._editState(4)
+            self._enable = False
         else:
             self.lineEdit.setEnabled(True)
-            self.enable = True
-            self.format_line()
+            self._enable = True
+            self._format_line()
 
 
 class Ui_MainWindow(object):
     def __init__(self):
-        self.status_mode = 1
+        self._status_mode = 1
 
     def setupUi(self, MainWindow):
-        self.font = QtGui.QFont()
-        self.font.setFamily("Open Sans Condensed")
-        self.font.setBold(False)
-        self.font.setWeight(50)
+        self._font = QtGui.QFont()
+        self._font.setFamily("Open Sans Condensed")
+        self._font.setBold(False)
+        self._font.setWeight(50)
+
+        self._info = {'with': 'h - толщина плиты\n'
+                              'ho - высота рабочей поверхности\n'
+                              'a / b - сечение колонн, примыкающих к полу снизу и сверху \n'
+                              'N - нагрузка, передаваемая от пола на колонну \n'
+                              'M_x.sup / M_y.sup и M_x.inf /  M_y.inf - моменты в сечениях колонн по верхнему и\n'
+                              'нижнему краям плиты в направлении колонны с размерами «a» и «b» соответственно\n'
+                              's_w - класс требований к сдвигу арматуры, класс бетона\n'
+                              'r_b - осевое растяжение',
+                      'without': 'h - толщина плиты\n'
+                                 'ho - высота рабочей поверхности\n'
+                                 'a / b - сечение колонн, примыкающих к полу снизу и сверху\n'
+                                 'N - нагрузка, передаваемая с пола на колонну\n'
+                                 'х0 - центр колонны расположен в точке x0 от  свободный край плиты\n'
+                                 'M_sup / M_inf - моменты сечения колонны по верхней и нижней границам плиты\n'
+                                 'r_b - осевое растяжение'}
 
         def initWindowMode(info_edit_lines):
-            window = QtWidgets.QWidget(self.centralwidget)
-            window.setGeometry(0, 50, 545, 435)
+            window = QtWidgets.QWidget(self._centralwidget)
+            window.setGeometry(0, 50, 856, 435)
             array_lines = []
             for i in info_edit_lines:
                 array_lines.append(CustonLineEdit())
                 array_lines[-1].initUi(*i, window)
             return window, array_lines
 
-        def initButtonMode(title, widget, layout, css):
-            self.font.setPointSize(14)
-            button = QtWidgets.QPushButton(widget)
+        def initButtonMode(title, widget_in, layout, css):
+            self._font.setPointSize(14)
+            button = QtWidgets.QPushButton(widget_in)
             button.setObjectName(title)
             button.setMinimumSize(QtCore.QSize(150, 35))
             button.setStyleSheet(css)
             button.setText(title)
-            button.setFont(self.font)
-            button.clicked.connect(lambda: self.change_mode(title))
+            button.setFont(self._font)
+            button.clicked.connect(lambda: self._change_mode(title))
             layout.addWidget(button)
             return button
 
@@ -123,34 +143,43 @@ class Ui_MainWindow(object):
             selector.stateChanged.connect(lines[-1].change_enabled)
 
         MainWindow.setObjectName("MainWindow")
-        MainWindow.resize(800, 550)
-        self.centralwidget = QtWidgets.QWidget(MainWindow)
-        self.centralwidget.setObjectName("centralwidget")
+        MainWindow.setFixedSize(856, 545)
+        MainWindow.setWindowFlags(QtCore.Qt.CustomizeWindowHint | QtCore.Qt.WindowCloseButtonHint)
+        self._centralwidget = QtWidgets.QWidget(MainWindow)
+        self._centralwidget.setObjectName("centralwidget")
+        self._font.setPointSize(11)
+        QtWidgets.QToolTip.setFont(self._font)
+        self._info_label = QtWidgets.QLabel(self._centralwidget)
+        self._info_label.setPixmap(QtGui.QPixmap('imgs/info.png'))
+        self._info_label.setGeometry(801, 20, 35, 35)
+        widget = QtWidgets.QWidget(self._centralwidget)
+        widget.setGeometry(QtCore.QRect(274, 15, 309, 41))
+        widget.setObjectName("widget")
+        horizontalLayout = QtWidgets.QHBoxLayout(widget)
+        horizontalLayout.setSpacing(2)
+        horizontalLayout.setContentsMargins(0, 0, 0, 0)
+        horizontalLayout.setObjectName("horizontalLayout")
+        self._with_reinf_button = initButtonMode('WITH REINF', widget, horizontalLayout,
+                                                 "background-color: #97ff88; border: 1px solid #000;")
+        self._without_reinf_button = initButtonMode('WITHOUT REINF', widget, horizontalLayout,
+                                                    "background-color: #fff; border: 1px solid #000;")
+        self._info_label.setToolTip(self._info['with'])
 
-        self.widget = QtWidgets.QWidget(self.centralwidget)
-        self.widget.setGeometry(QtCore.QRect(200, 15, 309, 41))
-        self.widget.setObjectName("widget")
-        self.horizontalLayout = QtWidgets.QHBoxLayout(self.widget)
-        self.horizontalLayout.setSpacing(2)
-        self.horizontalLayout.setContentsMargins(0, 0, 0, 0)
-        self.horizontalLayout.setObjectName("horizontalLayout")
-        self.with_reinf_button = initButtonMode('WITH REINF', self.widget, self.horizontalLayout,
-                                                "background-color: #97ff88; border: 1px solid #000;")
-        self.without_reinf_button = initButtonMode('WITHOUT REINF', self.widget, self.horizontalLayout,
-                                                   "background-color: #fff; border: 1px solid #000;")
-
-        self.with_reinf, self.with_reinf_lines = initWindowMode([[(20, 20), 'h', 'мм', 16],
-                                                                 [(20, 70), 'a', 'мм', 16],
-                                                                 [(275, 70), 'b', 'мм', 16],
-                                                                 [(20, 120), 'N', 'кН', 16],
-                                                                 [(20, 170), 'M_x.sup', 'кН.м', 12],
-                                                                 [(275, 170), 'M_y.sup', 'кН.м', 12],
-                                                                 [(20, 220), 'M_x.inf', 'кН.м', 12],
-                                                                 [(275, 220), 'M_y.inf', 'кН.м', 12],
-                                                                 [(20, 270), 's_w', 'мм', 16],
-                                                                 [(20, 320), 'R_bt', 'МПа', 16],
-                                                                 [(20, 370), 'h_0', 'мм', 16]])
-        initCheckBox(370, self.with_reinf, self.with_reinf_lines)
+        self._with_reinf, self._with_reinf_lines = initWindowMode([[(20, 20), 'h', 'мм', 16],
+                                                                   [(20, 70), 'a', 'мм', 16],
+                                                                   [(275, 70), 'b', 'мм', 16],
+                                                                   [(20, 120), 'N', 'кН', 16],
+                                                                   [(20, 170), 'M_x.sup', 'кН.м', 12],
+                                                                   [(275, 170), 'M_y.sup', 'кН.м', 12],
+                                                                   [(20, 220), 'M_x.inf', 'кН.м', 12],
+                                                                   [(275, 220), 'M_y.inf', 'кН.м', 12],
+                                                                   [(20, 270), 's_w', 'мм', 16],
+                                                                   [(20, 320), 'R_bt', 'МПа', 16],
+                                                                   [(20, 370), 'h_0', 'мм', 16]])
+        initCheckBox(370, self._with_reinf, self._with_reinf_lines)
+        with_img_scheme = QtWidgets.QLabel(self._with_reinf)
+        with_img_scheme.setGeometry(545, 20, 291, 395)
+        with_img_scheme.setPixmap(QtGui.QPixmap("imgs/with_scheme.jpg"))
 
         self.without_reinf, self.without_reinf_lines = initWindowMode([[(20, 20), 'h', 'мм', 16],
                                                                        [(20, 70), 'a', 'мм', 16],
@@ -162,21 +191,31 @@ class Ui_MainWindow(object):
                                                                        [(20, 270), 'R_bt', 'МПа', 16],
                                                                        [(20, 320), 'h_0', 'мм', 16]])
         initCheckBox(320, self.without_reinf, self.without_reinf_lines)
+        without_img_scheme = QtWidgets.QLabel(self.without_reinf)
+        without_img_scheme.setGeometry(545, 20, 291, 395)
+        without_img_scheme.setPixmap(QtGui.QPixmap("imgs/without_scheme.jpg"))
         self.without_reinf.hide()
 
-        self.start_calculations = QtWidgets.QPushButton(self.centralwidget)
-        self.start_calculations.setGeometry(350, 450, 200, 40)
-        self.start_calculations.setText('CALCULATE')
-        self.start_calculations.setStyleSheet("background-color: #99d9ea; border: 1px solid #000")
-        self.font.setPointSize(14)
-        self.start_calculations.setFont(self.font)
-        self.start_calculations.clicked.connect(self.submit_enter)
+        start_calculations = QtWidgets.QPushButton(self._centralwidget)
+        start_calculations.setGeometry(328, 485, 200, 40)
+        start_calculations.setText('CALCULATE')
+        start_calculations.setStyleSheet("background-color: #99d9ea; border: 1px solid #000")
+        self._font.setPointSize(14)
+        start_calculations.setFont(self._font)
+        start_calculations.clicked.connect(self._submit_enter)
 
-        MainWindow.setCentralWidget(self.centralwidget)
-        self.retranslateUi(MainWindow)
+        MainWindow.setCentralWidget(self._centralwidget)
+        MainWindow.setWindowTitle('FPTEWTR')
         QtCore.QMetaObject.connectSlotsByName(MainWindow)
 
-    def change_mode(self, title):
+    @staticmethod
+    def _create_set(lines):
+        timed = []
+        for i in lines:
+            timed.append(int(i.lineEdit.text()) if i.lineEdit.text() != '' else None)
+        tuple(timed)  # Это передать в класс
+
+    def _change_mode(self, title):
         def change_states(place_1, place_2):
             place_1[0].show()
             place_1[1].setStyleSheet("background-color: #97ff88; border: 1px solid #000;")
@@ -184,21 +223,20 @@ class Ui_MainWindow(object):
             place_2[1].setStyleSheet("background-color: #fff; border: 1px solid #000;")
 
         if title == 'WITH REINF':
-            change_states((self.with_reinf, self.with_reinf_button), (self.without_reinf, self.without_reinf_button))
-            self.status_mode = 1
+            change_states((self._with_reinf, self._with_reinf_button), (self.without_reinf, self._without_reinf_button))
+            self._info_label.setToolTip(self._info['with'])
+            self._status_mode = 1
         elif title == 'WITHOUT REINF':
-            change_states((self.without_reinf, self.without_reinf_button), (self.with_reinf, self.with_reinf_button))
-            self.status_mode = 2
+            change_states((self.without_reinf, self._without_reinf_button), (self._with_reinf, self._with_reinf_button))
+            self._info_label.setToolTip(self._info['without'])
+            self._status_mode = 2
 
-    def submit_enter(self):
-        self.array_lines = self.with_reinf_lines if self.status_mode == 1 else self.without_reinf_lines
+    def _submit_enter(self):
+        self.array_lines = self._with_reinf_lines if self._status_mode == 1 else self.without_reinf_lines
         for i in self.array_lines:
-            if i.state is False:
-                print('соси')
+            if i.get_state() is False:
+                QtWidgets.QMessageBox.critical(self._centralwidget, 'Ошибка введённых данных!',
+                                               "Заполнены не все поля или введён неверный тип данных",
+                                               QtWidgets.QMessageBox.Ok)
                 return False
-        print('красава')
-        return True
-
-    def retranslateUi(self, MainWindow):
-        _translate = QtCore.QCoreApplication.translate
-        MainWindow.setWindowTitle(_translate("MainWindow", "MainWindow"))
+        self._create_set(self.array_lines)

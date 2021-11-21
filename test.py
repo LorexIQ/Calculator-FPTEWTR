@@ -8,7 +8,7 @@ class Widget(QMainWindow):
         super(Widget, self).__init__()
         self.win = Ui_MainWindow()
         self.win.setupUi(self)
-        self.win.centralwidget.setGeometry(120, 0, 800, 444)
+        self.win._centralwidget.setGeometry(120, 0, 800, 444)
         self.initCssUi()
         self.show()
 
