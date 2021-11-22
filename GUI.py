@@ -188,6 +188,7 @@ class WinProgram(object):
 
         MainWindow.setFixedSize(856, 545)
         MainWindow.setWindowFlags(QtCore.Qt.CustomizeWindowHint | QtCore.Qt.WindowCloseButtonHint)
+        MainWindow.setWindowIcon(QtGui.QIcon('imgs/main_litle.png'))
         self._centralwidget = QtWidgets.QWidget(MainWindow)
         self._font.setPointSize(11)
         QtWidgets.QToolTip.setFont(self._font)
