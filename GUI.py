@@ -1,5 +1,5 @@
 from PyQt5 import QtCore, QtGui, QtWidgets
-from calculations.calculationsf import Calculate
+from Calculations import calculationsf
 import pickle
 
 
