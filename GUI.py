@@ -187,6 +187,7 @@ class WinProgram(object):
             selector.setStyleSheet('QCheckBox::indicator:checked {image: url(imgs/checkbox/checked.jpg);}'
                                    'QCheckBox::indicator:unchecked {image: url(imgs/checkbox/unchecked.jpg);}')
             selector.stateChanged.connect(lines[-1].change_enabled)
+            return selector
 
         def initButtonFile(pos, score, img):
             button = QtWidgets.QPushButton(self._centralwidget)
@@ -231,7 +232,7 @@ class WinProgram(object):
                                                                    [(20, 320), 'R_bt', 16],
                                                                    [(275, 320), 'R_sw', 16],
                                                                    [(20, 370), 'h_0', 16]])
-        initCheckBox(370, self._with_reinf, self._with_reinf_lines)
+        self._with_checkBox = initCheckBox(370, self._with_reinf, self._with_reinf_lines)
         with_img_scheme = QtWidgets.QLabel(self._with_reinf)
         with_img_scheme.setGeometry(545, 20, 291, 395)
         with_img_scheme.setPixmap(QtGui.QPixmap("imgs/scheme/with_scheme.jpg"))
@@ -245,7 +246,7 @@ class WinProgram(object):
                                                                          [(20, 220), 'x_0', 16],
                                                                          [(20, 270), 'R_bt', 16],
                                                                          [(20, 320), 'h_0', 16]])
-        initCheckBox(320, self._without_reinf, self._without_reinf_lines)
+        self._without_checkBox = initCheckBox(320, self._without_reinf, self._without_reinf_lines)
         without_img_scheme = QtWidgets.QLabel(self._without_reinf)
         without_img_scheme.setGeometry(545, 20, 291, 395)
         without_img_scheme.setPixmap(QtGui.QPixmap("imgs/scheme/without_scheme.jpg"))
@@ -281,10 +282,13 @@ class WinProgram(object):
         QtCore.QMetaObject.connectSlotsByName(MainWindow)
 
     @staticmethod
-    def _create_set(lines):
+    def _create_set(objects):
         timed = []
-        for i in lines:
+        for i in objects[0]:
             timed.append(int(i.get_text()) if i.get_text() != '' else None)
+        if not objects[1].isChecked():
+            timed[-1] = None
+        print(timed)
         return tuple(timed)
 
     def _change_mode(self, title):
@@ -306,8 +310,9 @@ class WinProgram(object):
             self._status_mode = 2
 
     def _submit_enter(self):
-        array_lines = self._with_reinf_lines if self._status_mode == 1 else self._without_reinf_lines
-        for i in array_lines:
+        array_lines = (self._with_reinf_lines, self._with_checkBox) if self._status_mode == 1 else \
+            (self._without_reinf_lines, self._without_checkBox)
+        for i in array_lines[0]:
             if i.get_state() is False:
                 QtWidgets.QMessageBox.critical(self._centralwidget, self._changed['error'][0],
                                                self._changed['error'][1], QtWidgets.QMessageBox.Ok)
@@ -349,10 +354,12 @@ class WinProgram(object):
         self._result_menu.setLabelBackButton(self._changed['back'])
 
     @staticmethod
-    def _readLines(lines):
+    def _readLines(objects):
         array_values = []
-        for i in lines:
+        for i in objects[0]:
             array_values.append(i.get_text())
+        if not objects[1].isChecked():
+            array_values[-1] = ''
         return array_values
 
     def _readFile(self):
@@ -389,14 +396,16 @@ class WinProgram(object):
             pass
 
     def _activeFileButtons(self, type_button):
-        worked = self._with_reinf_lines if self._status_mode == 1 else self._without_reinf_lines
+        worked = (self._with_reinf_lines, self._with_checkBox) if self._status_mode == 1 else \
+            (self._without_reinf_lines, self._without_checkBox)
         if type_button == 1:
             self._writeFile(self._readLines(worked))
         elif type_button == 2:
             try:
                 array_new_values = self._readFile()
-                for line, value in zip(worked, array_new_values):
+                for line, value in zip(worked[0], array_new_values):
                     line.set_text(value)
+                worked[1].setChecked(True if array_new_values[-1] != '' else False)
             except:
                 pass
 
