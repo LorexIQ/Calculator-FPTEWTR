@@ -1,5 +1,6 @@
 from PyQt5 import QtCore, QtGui, QtWidgets
 from calculations.calculationsf import Calculate
+from guide import Guide
 import pickle
 
 
@@ -194,16 +195,18 @@ class WinProgram(object):
             button.clicked.connect(lambda: self._activeFileButtons(score))
             return button
 
+        self._win_guide = None
         MainWindow.setFixedSize(856, 545)
         MainWindow.setWindowFlags(QtCore.Qt.CustomizeWindowHint | QtCore.Qt.WindowCloseButtonHint)
         MainWindow.setWindowIcon(QtGui.QIcon('imgs/icon/main_litle.png'))
         self._centralwidget = QtWidgets.QWidget(MainWindow)
         self._font.setPointSize(11)
         QtWidgets.QToolTip.setFont(self._font)
-        self._info_label = QtWidgets.QLabel(self._centralwidget)
-        self._info_label.setStyleSheet('QLabel {image: url(imgs/info/info.png)}'
-                                       'QLabel:disabled {image: url(imgs/info/info_disabled.png)}')
-        self._info_label.setGeometry(801, 20, 35, 35)
+        self._info_button = QtWidgets.QPushButton(self._centralwidget)
+        self._info_button.setStyleSheet('QPushButton {image: url(imgs/info/info.png)}'
+                                        'QPushButton:disabled {image: url(imgs/info/info_disabled.png)}')
+        self._info_button.setGeometry(801, 20, 35, 35)
+        self._info_button.clicked.connect(self._call_guide)
         widget = QtWidgets.QWidget(self._centralwidget)
         widget.setGeometry(QtCore.QRect(274, 15, 309, 41))
         horizontalLayout = QtWidgets.QHBoxLayout(widget)
@@ -265,7 +268,7 @@ class WinProgram(object):
         self._copy_button = initButtonFile((20, 485), 1, 'imgs/file/copy')
         self._paste_button = initButtonFile((63, 485), 2, 'imgs/file/paste')
 
-        self._result_menu = ResultMenu(self._with_reinf_button, self._without_reinf_button, self._info_label,
+        self._result_menu = ResultMenu(self._with_reinf_button, self._without_reinf_button, self._info_button,
                                        self._launguage_button, self._copy_button, self._paste_button,
                                        self._centralwidget)
 
@@ -291,12 +294,12 @@ class WinProgram(object):
         if title == 'WITH REINF':
             change_states((self._with_reinf, self._with_reinf_button),
                           (self._without_reinf, self._without_reinf_button))
-            self._info_label.setToolTip(self._changed['with'])
+            self._info_button.setToolTip(self._changed['with'])
             self._status_mode = 1
         elif title == 'WITHOUT REINF':
             change_states((self._without_reinf, self._without_reinf_button),
                           (self._with_reinf, self._with_reinf_button))
-            self._info_label.setToolTip(self._changed['without'])
+            self._info_button.setToolTip(self._changed['without'])
             self._status_mode = 2
 
     def _submit_enter(self):
@@ -330,7 +333,7 @@ class WinProgram(object):
 
     def _changeLaunguage(self):
         self._changed = self._info_en if self._launguage_button.isChecked() else self._info_ru
-        self._info_label.setToolTip(self._changed['with'])
+        self._info_button.setToolTip(self._changed['with'])
         self._with_reinf_button.setText(self._changed['with_button'])
         self._without_reinf_button.setText(self._changed['without_button'])
         self._start_calculations.setText(self._changed['start_button'])
@@ -369,3 +372,13 @@ class WinProgram(object):
             array_new_values = self._readFile()
             for line, value in zip(worked, array_new_values):
                 line.set_text(value)
+
+    def _call_guide(self):
+        self.exit()
+        self._win_guide = Guide(self._changed['guide'])
+        self._win_guide.show()
+        self._win_guide.activateWindow()
+
+    def exit(self):
+        if self._win_guide is not None:
+            self._win_guide.close()
