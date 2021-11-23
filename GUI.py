@@ -168,7 +168,6 @@ class WinProgram(object):
             for i in info_edit_lines:
                 array_lines.append(CustonLineEdit())
                 array_lines[-1].initUi(*i, window)
-            self.__main_window = window
             return window, array_lines
 
         def initButtonMode(title, widget_in, layout, css):
@@ -228,7 +227,9 @@ class WinProgram(object):
                                                                    [(20, 220), 'M_x.inf', 12],
                                                                    [(275, 220), 'M_y.inf', 12],
                                                                    [(20, 270), 's_w', 16],
+                                                                   [(275, 270), 'd_m', 16],
                                                                    [(20, 320), 'R_bt', 16],
+                                                                   [(275, 320), 'R_sw', 16],
                                                                    [(20, 370), 'h_0', 16]])
         initCheckBox(370, self._with_reinf, self._with_reinf_lines)
         with_img_scheme = QtWidgets.QLabel(self._with_reinf)
@@ -356,13 +357,13 @@ class WinProgram(object):
 
     def _readFile(self):
         try:
+            file_link = None
             if self._status_mode == 1:
-                file_link = QFileDialog.getOpenFileName(self.__main_window, 'loading data of calculations', './', 'File data calc (*.calcI)')
+                file_link = QFileDialog.getOpenFileName(self._centralwidget, 'loading data of calculations', './',
+                                                        'File data calc (*.calcI)')
             elif self._status_mode == 2:
-                file_link = QFileDialog.getOpenFileName(self.__main_window, 'loading data of calculations', './', 'File data calc (*.calcL)')
-
-            values = []
-        
+                file_link = QFileDialog.getOpenFileName(self._centralwidget, 'loading data of calculations', './',
+                                                        'File data calc (*.calcL)')
             file_calc = open(str(file_link[0]), "rb")
             values = pickle.load(file_calc)
             file_calc.close()
@@ -370,12 +371,15 @@ class WinProgram(object):
         except:
             pass
 
-    def _writeFile(self, array_value): 
+    def _writeFile(self, array_value):
+        f_name = None
         if self._status_mode == 1:
-            file_link = QFileDialog.getSaveFileName(self.__main_window, 'save data of calculations', './', 'File data calc (*.calcI)')
+            file_link = QFileDialog.getSaveFileName(self._centralwidget, 'save data of calculations', './',
+                                                    'File data calc (*.calcI)')
             f_name = str(file_link[0])
         elif self._status_mode == 2:
-            file_link = QFileDialog.getSaveFileName(self.__main_window, 'save data of calculations', './', 'File data calc (*.calcL)')
+            file_link = QFileDialog.getSaveFileName(self._centralwidget, 'save data of calculations', './',
+                                                    'File data calc (*.calcL)')
             f_name = str(file_link[0])
         try:
             file_calc = open(f_name, "wb")
@@ -383,8 +387,6 @@ class WinProgram(object):
             file_calc.close()
         except:
             pass
-
-        
 
     def _activeFileButtons(self, type_button):
         worked = self._with_reinf_lines if self._status_mode == 1 else self._without_reinf_lines
