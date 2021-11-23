@@ -2,8 +2,10 @@ class Calculate(object):
     def __init__(self, launguage):
         self.__status_calculations = 0
         self._launguage = launguage
+        self.__data_calc = ()
 
     def calculate_without_reinf(self, data):
+        self.__data_calc = data
         h, a, b, N, M_sup, M_inf, x0, R_bt, h0 = data
         if h0 is None:
             h0 = h - 30
@@ -38,7 +40,7 @@ class Calculate(object):
 
     def calculate_with_reinf(self, data):
         h, a, b, N, M_xsup, M_ysup, M_xinf, M_yinf, s_w, R_bt, h0 = data
-
+        self.__data_calc = data
         if h0 is None:
             h0 = h - 30
         try:
@@ -106,3 +108,9 @@ class Calculate(object):
 
     def get_status(self):
         return self.__status_calculations
+    
+    def get_data(self):
+        return self.__data_calc
+
+    def set_data(self, data):
+        self.__data_calc = data
