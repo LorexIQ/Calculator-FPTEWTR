@@ -366,11 +366,11 @@ class WinProgram(object):
         try:
             file_link = None
             if self._status_mode == 1:
-                file_link = QFileDialog.getOpenFileName(self._centralwidget, 'loading data of calculations', './',
-                                                        'File data calc (*.calcI)')
+                file_link = QFileDialog.getOpenFileName(self._centralwidget, self._changed['file'][1], './',
+                                                        self._changed['file'][2] + ' (*.calcI)')
             elif self._status_mode == 2:
-                file_link = QFileDialog.getOpenFileName(self._centralwidget, 'loading data of calculations', './',
-                                                        'File data calc (*.calcL)')
+                file_link = QFileDialog.getOpenFileName(self._centralwidget, self._changed['file'][1], './',
+                                                        self._changed['file'][2] + ' (*.calcL)')
             file_calc = open(str(file_link[0]), "rb")
             values = pickle.load(file_calc)
             file_calc.close()
@@ -381,12 +381,12 @@ class WinProgram(object):
     def _writeFile(self, array_value):
         f_name = None
         if self._status_mode == 1:
-            file_link = QFileDialog.getSaveFileName(self._centralwidget, 'save data of calculations', './',
-                                                    'File data calc (*.calcI)')
+            file_link = QFileDialog.getSaveFileName(self._centralwidget, self._changed['file'][0], './',
+                                                    self._changed['file'][2] + ' (*.calcI)')
             f_name = str(file_link[0])
         elif self._status_mode == 2:
-            file_link = QFileDialog.getSaveFileName(self._centralwidget, 'save data of calculations', './',
-                                                    'File data calc (*.calcL)')
+            file_link = QFileDialog.getSaveFileName(self._centralwidget, self._changed['file'][0], './',
+                                                    self._changed['file'][2] + ' (*.calcL)')
             f_name = str(file_link[0])
         try:
             file_calc = open(f_name, "wb")
