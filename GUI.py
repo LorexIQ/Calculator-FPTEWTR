@@ -162,13 +162,14 @@ class WinProgram(object):
         self._initLaunguage()
 
         def initWindowMode(info_edit_lines):
-            self.window = QtWidgets.QWidget(self._centralwidget)
-            self.window.setGeometry(0, 50, 856, 495)
-            self.array_lines = []
+            window = QtWidgets.QWidget(self._centralwidget)
+            window.setGeometry(0, 50, 856, 495)
+            array_lines = []
             for i in info_edit_lines:
-                self.array_lines.append(CustonLineEdit())
-                self.array_lines[-1].initUi(*i, self.window)
-            return self.window, self.array_lines
+                array_lines.append(CustonLineEdit())
+                array_lines[-1].initUi(*i, window)
+            self.__main_window = window
+            return window, array_lines
 
         def initButtonMode(title, widget_in, layout, css):
             self._font.setPointSize(14)
@@ -356,9 +357,9 @@ class WinProgram(object):
     def _readFile(self):
         try:
             if self._status_mode == 1:
-                file_link = QFileDialog.getOpenFileName(self.window, 'loading data of calculations', './', 'File data calc (*.calcI)')
+                file_link = QFileDialog.getOpenFileName(self.__main_window, 'loading data of calculations', './', 'File data calc (*.calcI)')
             elif self._status_mode == 2:
-                file_link = QFileDialog.getOpenFileName(self.window, 'loading data of calculations', './', 'File data calc (*.calcL)')
+                file_link = QFileDialog.getOpenFileName(self.__main_window, 'loading data of calculations', './', 'File data calc (*.calcL)')
 
             values = []
         
@@ -371,10 +372,10 @@ class WinProgram(object):
 
     def _writeFile(self, array_value): 
         if self._status_mode == 1:
-            file_link = QFileDialog.getSaveFileName(self.window, 'save data of calculations', './', 'File data calc (*.calcI)')
+            file_link = QFileDialog.getSaveFileName(self.__main_window, 'save data of calculations', './', 'File data calc (*.calcI)')
             f_name = str(file_link[0])
         elif self._status_mode == 2:
-            file_link = QFileDialog.getSaveFileName(self.window, 'save data of calculations', './', 'File data calc (*.calcL)')
+            file_link = QFileDialog.getSaveFileName(self.__main_window, 'save data of calculations', './', 'File data calc (*.calcL)')
             f_name = str(file_link[0])
         try:
             file_calc = open(f_name, "wb")
