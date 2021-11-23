@@ -373,7 +373,6 @@ class WinProgram(object):
         if self._status_mode == 1:
             file_link = QFileDialog.getSaveFileName(self.window, 'save data of calculations', './', 'File data calc (*.calcI)')
             f_name = str(file_link[0])
-            print(f_name)
         elif self._status_mode == 2:
             file_link = QFileDialog.getSaveFileName(self.window, 'save data of calculations', './', 'File data calc (*.calcL)')
             f_name = str(file_link[0])
