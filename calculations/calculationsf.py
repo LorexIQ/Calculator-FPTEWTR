@@ -39,7 +39,7 @@ class Calculate(object):
             return self._launguage['without'][2]
 
     def calculate_with_reinf(self, data):
-        h, a, b, N, M_xsup, M_ysup, M_xinf, M_yinf, s_w, R_bt, h0 = data
+        h, a, b, N, M_xsup, M_ysup, M_xinf, M_yinf, s_w, min_diameter, R_bt, R_sw, h0 = data
         self.__data_calc = data
         if h0 is None:
             h0 = h - 30
@@ -51,8 +51,6 @@ class Calculate(object):
             s_w_count = h0 // s_w
             first_row = round(h0 / s_w_count, 1)
             second_row = round((h0 / s_w_count) + (((h0 / (s_w_count - 1)) - (h0 / s_w_count)) / 2), 1)
-            R_sw = 170
-            min_diameter = 6
             A_sw = round(R_sw / (min_diameter / (s_w_count - 1)))
             q_sw = round((R_sw * A_sw) / s_w, 1)
 
