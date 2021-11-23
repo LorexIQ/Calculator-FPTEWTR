@@ -1,4 +1,5 @@
 from PyQt5 import QtCore, QtGui, QtWidgets
+from PyQt5.QtWidgets import QFileDialog
 from calculations.calculationsf import Calculate
 from guide import Guide
 import pickle
@@ -161,13 +162,13 @@ class WinProgram(object):
         self._initLaunguage()
 
         def initWindowMode(info_edit_lines):
-            window = QtWidgets.QWidget(self._centralwidget)
-            window.setGeometry(0, 50, 856, 495)
-            array_lines = []
+            self.window = QtWidgets.QWidget(self._centralwidget)
+            self.window.setGeometry(0, 50, 856, 495)
+            self.array_lines = []
             for i in info_edit_lines:
-                array_lines.append(CustonLineEdit())
-                array_lines[-1].initUi(*i, window)
-            return window, array_lines
+                self.array_lines.append(CustonLineEdit())
+                self.array_lines[-1].initUi(*i, self.window)
+            return self.window, self.array_lines
 
         def initButtonMode(title, widget_in, layout, css):
             self._font.setPointSize(14)
@@ -352,26 +353,50 @@ class WinProgram(object):
             array_values.append(i.get_text())
         return array_values
 
-    def _readFile(self):  # Функция чтения файла
-        file_link = '<ссылка на файл полученная через QFileDialog>'
-        mode = self._status_mode  # 1 - with, 2 - without
-        values = []  # Массив с новыми данными
-        # Сделай защиту, чтобы нельзя было прочитать файл сохранения with в поля without.
-        # Можно сделать первым значением в файле сохранения, переменную str: with | without.
-        # Можно сравнить _status_mode и первую переменную в файлах
-        return values
+    def _readFile(self):
+        try:
+            if self._status_mode == 1:
+                file_link = QFileDialog.getOpenFileName(self.window, 'loading data of calculations', './', 'File data calc (*.calcI)')
+            elif self._status_mode == 2:
+                file_link = QFileDialog.getOpenFileName(self.window, 'loading data of calculations', './', 'File data calc (*.calcL)')
 
-    def _writeFile(self, array_value):  # Функция записи файла
-        pass
+            values = []
+        
+            file_calc = open(str(file_link[0]), "rb")
+            values = pickle.load(file_calc)
+            file_calc.close()
+            return values
+        except:
+            pass
 
-    def _activeFileButtons(self, type_button):  # Функция определения кнопок по идее готова. Дальше сам. Удали коменты
+    def _writeFile(self, array_value): 
+        if self._status_mode == 1:
+            file_link = QFileDialog.getSaveFileName(self.window, 'save data of calculations', './', 'File data calc (*.calcI)')
+            f_name = str(file_link[0])
+            print(f_name)
+        elif self._status_mode == 2:
+            file_link = QFileDialog.getSaveFileName(self.window, 'save data of calculations', './', 'File data calc (*.calcL)')
+            f_name = str(file_link[0])
+        try:
+            file_calc = open(f_name, "wb")
+            pickle.dump(array_value, file_calc)
+            file_calc.close()
+        except:
+            pass
+
+        
+
+    def _activeFileButtons(self, type_button):
         worked = self._with_reinf_lines if self._status_mode == 1 else self._without_reinf_lines
         if type_button == 1:
             self._writeFile(self._readLines(worked))
         elif type_button == 2:
-            array_new_values = self._readFile()
-            for line, value in zip(worked, array_new_values):
-                line.set_text(value)
+            try:
+                array_new_values = self._readFile()
+                for line, value in zip(worked, array_new_values):
+                    line.set_text(value)
+            except:
+                pass
 
     def _call_guide(self):
         self.exit()
