@@ -6,9 +6,7 @@ class Calculate(object):
 
     def calculate_without_reinf(self, data):
         self.__data_calc = data
-        h, a, b, N, M_sup, M_inf, x0, R_bt, h0 = data
-        if h0 is None:
-            h0 = h - 30
+        h0,a, b, N, M_sup, M_inf, x0, R_bt = data
         try:
             L_x = x0 + (a + h0) / 2.
             L_y = b + h0
@@ -39,16 +37,18 @@ class Calculate(object):
             return self._launguage['without'][2]
 
     def calculate_with_reinf(self, data):
-        h, a, b, N, M_xsup, M_ysup, M_xinf, M_yinf, s_w, min_diameter, R_bt, R_sw, h0 = data
+        h0, a, b, N, M_xsup, M_ysup, M_xinf, M_yinf, R_sw, R_bt = data
         self.__data_calc = data
-        if h0 is None:
-            h0 = h - 30
+        min_diameter = 6
+
+        s_w = h0//3
+            
         try:
             F = N
             u, W_bx, W_by = self.__fill_UWW(a, b, h0)
             M_x = (M_xsup + M_xinf) / 2
             M_y = (M_ysup + M_yinf) / 2
-            s_w_count = h0 // s_w
+            s_w_count = 0.5*h0 // s_w
             first_row = round(h0 / s_w_count, 1)
             second_row = round((h0 / s_w_count) + (((h0 / (s_w_count - 1)) - (h0 / s_w_count)) / 2), 1)
             A_sw = round(R_sw / (min_diameter / (s_w_count - 1)))
