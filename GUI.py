@@ -1,8 +1,11 @@
+import pickle
+import imgs.comboBox.comboBoxUi
+
 from PyQt5 import QtCore, QtGui, QtWidgets
 from PyQt5.QtWidgets import QFileDialog
+
 from calculations.calculationsf import Calculate
 from guide import Guide
-import pickle
 
 
 class ResultMenu(QtWidgets.QWidget):
@@ -65,12 +68,71 @@ class ResultMenu(QtWidgets.QWidget):
         self.hide()
 
 
-class CustonLineEdit:
+class CustomComboBox:
+    def __init__(self, place):
+        self._object_name = ''
+        self._place = place
+
+    def initUi(self, set_coord, title, size_title, values=None):
+        x, y = set_coord
+        self._object_name = title
+        self._values = values
+
+        self._font = QtGui.QFont()
+        self._font.setFamily("Open Sans Condensed")
+        self._font.setPointSize(16)
+        self._font.setBold(False)
+        self._font.setWeight(50)
+
+        self._combo = QtWidgets.QComboBox(self._place)
+        self._combo.setFont(self._font)
+        self._combo.setGeometry(x + 69, y, 181, 45)
+        self._combo.setMaxVisibleItems(3)
+        self._combo.setStyleSheet('QComboBox {border: 0; background-image: url(:/elements/background.png); '
+                                  'padding-left: 10px;} '
+                                  'QComboBox::drop-down {image: url(:/elements/background-down.png);}'
+                                  'QComboBox::down-arrow {image: url(:/elements/pin.png); padding-top: 4px;}'
+                                  'QListView {color: #606060; background-color: #fff; selection-background-color: '
+                                  '#93cac4; selection-color: #000; padding-left: 8px; show-decoration-selected: 1;} '
+                                  'QComboBox QAbstractItemView {outline: none;}'
+                                  'QScrollBar {background: #fff; width: 10px;}'
+                                  'QScrollBar::handle {background: #93cac4; border: 1px solid #000;}'
+                                  'QScrollBar::handle:hover {background: #97e0d8;}')
+
+        self._label_bombo = QtWidgets.QLabel(self._place)
+        self._label_bombo.setGeometry(x, y, 69, 45)
+        self._label_bombo.setAlignment(QtCore.Qt.AlignCenter)
+        self._label_bombo.setStyleSheet('background-image: url(:/elements/labael.png);')
+
+        if values is not None:
+            for value in self._values:
+                self._value = value
+                self._combo.addItem(value)
+
+    def get_text(self):
+        return self._values[str(self._combo.currentText())]
+
+    def getObject(self):
+        return self._object_name
+
+    def set_text(self, value):
+        for i in self._values:
+            if value == self._values[i]:
+                self._combo.setCurrentText(i)
+                break
+
+    def editUnit(self, new_unit, size=16):
+        self._font.setPointSize(size)
+        self._label_bombo.setFont(self._font)
+        self._label_bombo.setText(new_unit)
+
+
+class CustomLineEdit:
     def __init__(self):
         self._state = False
         self._enable = True
 
-    def initUi(self, set_coord, title, font_size, centralwidget):
+    def initUi(self, centralwidget, set_coord, title, font_size, span=None):
         x, y = set_coord
         self._font = QtGui.QFont()
         self._font.setFamily("Open Sans Condensed")
@@ -108,9 +170,6 @@ class CustonLineEdit:
             self._state = True
         elif state == 3:
             self._background.setPixmap(QtGui.QPixmap("imgs/lineEdit/error.jpg"))
-        elif state == 4:
-            self._state = True
-            self._background.setPixmap(QtGui.QPixmap("imgs/lineEdit/falsed.jpg"))
 
     def editUnit(self, new_unit, size=16):
         self._font.setPointSize(size)
@@ -166,8 +225,12 @@ class WinProgram(object):
             window.setGeometry(0, 50, 856, 495)
             array_lines = []
             for i in info_edit_lines:
-                array_lines.append(CustonLineEdit())
-                array_lines[-1].initUi(*i, window)
+                if type(i[0]) is tuple:
+                    array_lines.append(CustomLineEdit())
+                    array_lines[-1].initUi(window, *i)
+                else:
+                    array_lines.append(CustomComboBox(window))
+                    array_lines[-1].initUi(*i[1:])
             return window, array_lines
 
         def initButtonMode(title, widget_in, layout, css):
@@ -179,15 +242,6 @@ class WinProgram(object):
             button.clicked.connect(lambda: self._change_mode(title))
             layout.addWidget(button)
             return button
-
-        def initCheckBox(height, place, lines):
-            lines[-1].change_enabled()
-            selector = QtWidgets.QCheckBox(place)
-            selector.setGeometry(275, height, 45, 45)
-            selector.setStyleSheet('QCheckBox::indicator:checked {image: url(imgs/checkbox/checked.jpg);}'
-                                   'QCheckBox::indicator:unchecked {image: url(imgs/checkbox/unchecked.jpg);}')
-            selector.stateChanged.connect(lines[-1].change_enabled)
-            return selector
 
         def initButtonFile(pos, score, img):
             button = QtWidgets.QPushButton(self._centralwidget)
@@ -219,34 +273,32 @@ class WinProgram(object):
         self._without_reinf_button = initButtonMode('WITHOUT REINF', widget, horizontalLayout,
                                                     "background-color: #fff; border: 1px solid #000;")
 
-        self._with_reinf, self._with_reinf_lines = initWindowMode([[(20, 20), 'h', 16],
-                                                                   [(20, 70), 'a', 16],
-                                                                   [(275, 70), 'b', 16],
-                                                                   [(20, 120), 'N', 16],
-                                                                   [(20, 170), 'M_x.sup', 12],
-                                                                   [(275, 170), 'M_y.sup', 12],
-                                                                   [(20, 220), 'M_x.inf', 12],
-                                                                   [(275, 220), 'M_y.inf', 12],
-                                                                   [(20, 270), 's_w', 16],
-                                                                   [(275, 270), 'd_m', 16],
-                                                                   [(20, 320), 'R_bt', 16],
-                                                                   [(275, 320), 'R_sw', 16],
-                                                                   [(20, 370), 'h_0', 16]])
-        self._with_checkBox = initCheckBox(370, self._with_reinf, self._with_reinf_lines)
+        beton = {'B10': 0.56, 'B15': 0.75, 'B20': 0.9, 'B25': 1.05, 'B30': 1.15, 'B35': 1.3, 'B40': 1.4, 'B45': 1.5,
+                 'B50': 1.6, 'B55': 1.7, 'B60': 1.8}
+        armatura = {'A240': 170, 'A300': 215, 'A400': 285}
+
+        self._with_reinf, self._with_reinf_lines = initWindowMode((((20, 20), 'h_0', 16, (70, 400)),
+                                                                   ((20, 70), 'a', 16, (200, 800)),
+                                                                   ((275, 70), 'b', 16, (200, 800)),
+                                                                   ((20, 120), 'N', 16),
+                                                                   ((20, 170), 'M_x.sup', 12, (0, 400)),
+                                                                   ((275, 170), 'M_y.sup', 12, (0, 400)),
+                                                                   ((20, 220), 'M_x.inf', 12, (0, 400)),
+                                                                   ((275, 220), 'M_y.inf', 12, (0, 400)),
+                                                                   (True, (275, 270), 'R_sw', 14, armatura),
+                                                                   (True, (20, 270), 'R_bt', 16, beton)))
         with_img_scheme = QtWidgets.QLabel(self._with_reinf)
         with_img_scheme.setGeometry(545, 20, 291, 395)
         with_img_scheme.setPixmap(QtGui.QPixmap("imgs/scheme/with_scheme.jpg"))
 
-        self._without_reinf, self._without_reinf_lines = initWindowMode([[(20, 20), 'h', 16],
-                                                                         [(20, 70), 'a', 16],
-                                                                         [(275, 70), 'b', 16],
-                                                                         [(20, 120), 'N', 16],
-                                                                         [(20, 170), 'M_sup', 14],
-                                                                         [(275, 170), 'M_inf', 14],
-                                                                         [(20, 220), 'x_0', 16],
-                                                                         [(20, 270), 'R_bt', 16],
-                                                                         [(20, 320), 'h_0', 16]])
-        self._without_checkBox = initCheckBox(320, self._without_reinf, self._without_reinf_lines)
+        self._without_reinf, self._without_reinf_lines = initWindowMode((((20, 20), 'h_0', 16, (70, 400)),
+                                                                         ((20, 70), 'a', 16, (200, 800)),
+                                                                         ((275, 70), 'b', 16, (200, 800)),
+                                                                         ((20, 120), 'N', 16),
+                                                                         ((20, 170), 'M_sup', 14, (0, 400)),
+                                                                         ((275, 170), 'M_inf', 14, (0, 400)),
+                                                                         ((20, 220), 'x_0', 16),
+                                                                         (True, (20, 270), 'R_bt', 16, beton)))
         without_img_scheme = QtWidgets.QLabel(self._without_reinf)
         without_img_scheme.setGeometry(545, 20, 291, 395)
         without_img_scheme.setPixmap(QtGui.QPixmap("imgs/scheme/without_scheme.jpg"))
@@ -284,11 +336,8 @@ class WinProgram(object):
     @staticmethod
     def _create_set(objects):
         timed = []
-        for i in objects[0]:
+        for i in objects:
             timed.append(int(i.get_text()) if i.get_text() != '' else None)
-        if not objects[1].isChecked():
-            timed[-1] = None
-        print(timed)
         return tuple(timed)
 
     def _change_mode(self, title):
@@ -310,9 +359,8 @@ class WinProgram(object):
             self._status_mode = 2
 
     def _submit_enter(self):
-        array_lines = (self._with_reinf_lines, self._with_checkBox) if self._status_mode == 1 else \
-            (self._without_reinf_lines, self._without_checkBox)
-        for i in array_lines[0]:
+        array_lines = self._with_reinf_lines if self._status_mode == 1 else self._without_reinf_lines
+        for i in array_lines:
             if i.get_state() is False:
                 QtWidgets.QMessageBox.critical(self._centralwidget, self._changed['error'][0],
                                                self._changed['error'][1], QtWidgets.QMessageBox.Ok)
@@ -356,10 +404,8 @@ class WinProgram(object):
     @staticmethod
     def _readLines(objects):
         array_values = []
-        for i in objects[0]:
+        for i in objects:
             array_values.append(i.get_text())
-        if not objects[1].isChecked():
-            array_values[-1] = ''
         return array_values
 
     def _readFile(self):
@@ -374,9 +420,11 @@ class WinProgram(object):
             file_calc = open(str(file_link[0]), "rb")
             values = pickle.load(file_calc)
             file_calc.close()
+            print(values)
             return values
         except:
-            pass
+            QtWidgets.QMessageBox.critical(self._centralwidget, self._changed['error'][3],
+                                           self._changed['error'][4], QtWidgets.QMessageBox.Ok)
 
     def _writeFile(self, array_value):
         f_name = None
@@ -393,21 +441,17 @@ class WinProgram(object):
             pickle.dump(array_value, file_calc)
             file_calc.close()
         except:
-            pass
+            QtWidgets.QMessageBox.critical(self._centralwidget, self._changed['error'][2],
+                                           self._changed['error'][4], QtWidgets.QMessageBox.Ok)
 
     def _activeFileButtons(self, type_button):
-        worked = (self._with_reinf_lines, self._with_checkBox) if self._status_mode == 1 else \
-            (self._without_reinf_lines, self._without_checkBox)
+        worked = self._with_reinf_lines if self._status_mode == 1 else self._without_reinf_lines
         if type_button == 1:
             self._writeFile(self._readLines(worked))
         elif type_button == 2:
-            try:
-                array_new_values = self._readFile()
-                for line, value in zip(worked[0], array_new_values):
-                    line.set_text(value)
-                worked[1].setChecked(True if array_new_values[-1] != '' else False)
-            except:
-                pass
+            array_new_values = self._readFile()
+            for line, value in zip(worked, array_new_values):
+                line.set_text(value)
 
     def _call_guide(self):
         self.exit()
