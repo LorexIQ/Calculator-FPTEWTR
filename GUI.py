@@ -361,7 +361,7 @@ class WinProgram(object):
     def _submit_enter(self):
         array_lines = self._with_reinf_lines if self._status_mode == 1 else self._without_reinf_lines
         for i in array_lines:
-            if i.get_state() is False:
+            if type(i) is not CustomComboBox and i.get_state() is False:
                 QtWidgets.QMessageBox.critical(self._centralwidget, self._changed['error'][0],
                                                self._changed['error'][1], QtWidgets.QMessageBox.Ok)
                 return False
