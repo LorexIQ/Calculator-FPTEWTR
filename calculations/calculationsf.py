@@ -3,6 +3,7 @@ class Calculate(object):
         self.__status_calculations = 0
         self._launguage = launguage
         self.__data_calc = ()
+        self.__solution_progress_lessr = {}
 
     def calculate_without_reinf(self, data):
         self.__data_calc = data
@@ -13,16 +14,28 @@ class Calculate(object):
             u = 2 * L_x + L_y     
             I = (L_x ** 3 / 3) * (2 * (L_x + L_y) ** 2 + L_x * L_y) / u ** 2
             e0 = (L_x * (L_x + L_y)) / u - x0
+            self.__solution_progress_lessr['u'] = u
+            self.__solution_progress_lessr['I'] = I
+            self.__solution_progress_lessr['e0'] = e0
             y = L_x ** 2 / u
             W_b = I / y
+            self.__solution_progress_lessr['Wb'] = W_b
             M_loc = M_sup + M_inf
             M = M_loc / 2
             Fe0 = N * e0 / 1000
             M -= Fe0
+            self.__solution_progress_lessr['M'] = M
             if N * 1000 / u + M * 10 ** 6 / W_b <= R_bt * h0:
+                self.__solution_progress_lessr['checkingLeft'] = N * 1000 / u + M * 10 ** 6 / W_b
+                self.__solution_progress_lessr['checkingRight'] = R_bt * h0
                 u = 2 * (a + b + 2 * h0)
+                self.__solution_progress_lessr['u2'] = u
                 W_b = (a + h0) * ((a + h0) / 3 + b + h0)
+                self.__solution_progress_lessr['Wb2'] = W_b
                 M = M_loc / 2
+                self.__solution_progress_lessr['M2'] = M
+                self.__solution_progress_lessr['checkingLeft2'] = N * 1000 / u + M * 10 ** 6 / W_b
+                self.__solution_progress_lessr['checkingRight2'] = R_bt * h0
                 if N * 1000 / u + M * 10 ** 6 / W_b <= R_bt * h0:
                     self.__status_calculations = 1
                     return self._launguage['without'][0]
@@ -88,6 +101,8 @@ class Calculate(object):
                     u_new, W_bx_new, W_by_new = self.__fill_UWW(a_new, b_new, h0)
                     if ((F * 10 ** 3) / u_new) + ((M_x * 10 ** 6) / W_bx_new) + \
                             ((M_y * 10 ** 6) / W_by_new) < R_bt * h0:
+                        print(((F * 10 ** 3) / u_new) + ((M_x * 10 ** 6) / W_bx_new) + \
+                            ((M_y * 10 ** 6) / W_by_new) )
                         self.__status_calculations = 1
                         return return_line + self._launguage['with'][6] % (s_w_count - 1, first_row)
             self.__status_calculations = 2
@@ -111,3 +126,21 @@ class Calculate(object):
 
     def set_data(self, data):
         self.__data_calc = data
+
+    def get_formulas_without_r(self):
+        link_without = 'imgs/formulasWithoutR/'
+        formulas_without_r = {'e0': link_without+'e0.png',
+                            'checking': link_without+'Formula.png',
+                            'I': link_without+'I.png',
+                            'checkingLeft': link_without+'Left_formula.png',
+                            'М': link_without+'М.png',
+                            'M2': link_without+'М2.png',
+                            'checkingRight': link_without+'Right_formula.png',
+                            'u': link_without+'u.png',
+                            'u2': link_without+'u2.png',
+                            'Wb': link_without+'Wb.png',
+                            'Wb2': link_without+'Wb2.png'}
+        return formulas_without_r
+
+    def get_solution_progress_less_r(self):
+        return self.__solution_progress_lessr
