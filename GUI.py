@@ -313,7 +313,9 @@ class WinProgram(object):
                                           "QPushButton:pressed {border: 0;}"
                                           "QPushButton:hover {background-image: url(:/baseData/scheme/%s_blur.png)}" %
                                           (link, link))
-            with_img_scheme.clicked.connect(lambda: self._call_image_scheme(':/baseData/schemeFull/%s.png' % link))
+            with_img_scheme.clicked.connect(lambda: self._call_image_scheme(':/baseData/schemeFull/%s' % link + ('_ru'
+                                                                            if self._changed == self._info_ru
+                                                                            else '_en') + '.png'))
 
         self._win_guide, self._win_scheme = None, None
         MainWindow.setFixedSize(856, 545)
