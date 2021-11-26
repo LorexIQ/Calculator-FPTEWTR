@@ -1,4 +1,7 @@
 from PyQt5 import QtCore, QtGui, QtWidgets
+import matplotlib.figure as fg
+import matplotlib as mpl
+from matplotlib.backends.backend_agg import FigureCanvasAgg
 
 
 class customButton(QtWidgets.QPushButton):
@@ -62,3 +65,20 @@ class Ui_Guide(object):
 
     def changeButton(self, text):
         self._textBrowser.setHtml(QtCore.QCoreApplication.translate("Form", u"%s" % text, None))
+
+    @staticmethod
+    def _Latex_to_Pixmap(Latex, fs):
+        figure = mpl.figure.Figure()
+        figure.patch.set_facecolor('#97ff88')
+        figure.set_canvas(FigureCanvasAgg(figure))
+        renderer = figure.canvas.get_renderer()
+        ax = figure.add_axes([0, 0, 1, 1])
+        ax.axis('off')
+        t = ax.text(0, 0, Latex, ha='left', va='bottom', fontsize=fs)
+        fwidth, fheight = figure.get_size_inches()
+        fig_bbox = figure.get_window_extent(renderer)
+        text_bbox = t.get_window_extent(renderer)
+        figure.set_size_inches(text_bbox.width * fwidth / fig_bbox.width, text_bbox.height * fheight / fig_bbox.height)
+        buf, size = figure.canvas.print_to_buffer()
+        pixmap = QtGui.QPixmap(QtGui.QImage.rgbSwapped(QtGui.QImage(buf, size[0], size[1], QtGui.QImage.Format_ARGB32)))
+        return pixmap
