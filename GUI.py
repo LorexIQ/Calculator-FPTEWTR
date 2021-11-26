@@ -1,5 +1,5 @@
 import pickle
-import imgs.comboBox.comboBoxUi
+import imgs.globalBaseUi
 
 from PyQt5 import QtCore, QtGui, QtWidgets
 from PyQt5.QtWidgets import QFileDialog
@@ -73,7 +73,7 @@ class CustomComboBox:
         self._object_name = ''
         self._place = place
 
-    def initUi(self, set_coord, title, size_title, values=None):
+    def initUi(self, set_coord, title, values=None):
         x, y = set_coord
         self._object_name = title
         self._values = values
@@ -88,10 +88,11 @@ class CustomComboBox:
         self._combo.setFont(self._font)
         self._combo.setGeometry(x + 69, y, 181, 45)
         self._combo.setMaxVisibleItems(3)
-        self._combo.setStyleSheet('QComboBox {border: 0; background-image: url(:/elements/background.png); '
-                                  'padding-left: 10px;} '
-                                  'QComboBox::drop-down {image: url(:/elements/background-down.png);}'
-                                  'QComboBox::down-arrow {image: url(:/elements/pin.png); padding-top: 4px;}'
+        self._combo.setStyleSheet('QComboBox {border: 0; background-image: url('
+                                  ':/baseData/comboBox/background.png); padding-left: 10px;} '
+                                  'QComboBox::drop-down {image: url(:/baseData/comboBox/background-down.png);}'
+                                  'QComboBox::down-arrow {image: url(:/baseData/comboBox/pin.png); '
+                                  'padding-top: 4px;}'
                                   'QListView {color: #606060; background-color: #fff; selection-background-color: '
                                   '#93cac4; selection-color: #000; padding-left: 8px; show-decoration-selected: 1;} '
                                   'QComboBox QAbstractItemView {outline: none;}'
@@ -102,7 +103,7 @@ class CustomComboBox:
         self._label_bombo = QtWidgets.QLabel(self._place)
         self._label_bombo.setGeometry(x, y, 69, 45)
         self._label_bombo.setAlignment(QtCore.Qt.AlignCenter)
-        self._label_bombo.setStyleSheet('background-image: url(:/elements/labael.png);')
+        self._label_bombo.setStyleSheet('background-image: url(:/baseData/comboBox/labael.png);')
 
         if values is not None:
             for value in self._values:
@@ -134,42 +135,44 @@ class CustomLineEdit:
 
     def initUi(self, centralwidget, set_coord, title, font_size, span=None):
         x, y = set_coord
+        self._span = span
+
         self._font = QtGui.QFont()
         self._font.setFamily("Open Sans Condensed")
         self._font.setPointSize(16)
         self._font.setBold(False)
         self._font.setWeight(50)
-        self._background = QtWidgets.QLabel(centralwidget)
-        self._background.setGeometry(QtCore.QRect(x, y, 250, 45))
-        self._editState(1)
-        self._lineEdit = QtWidgets.QLineEdit(centralwidget)
-        self._lineEdit.setGeometry(QtCore.QRect(x + 75, y + 2, 126, 41))
-        self._lineEdit.setFont(self._font)
-        self._lineEdit.setStyleSheet("border: 0;"
-                                     "background-color: rgba(0,0,0,0);")
-        self._lineEdit.setMaxLength(10)
-        self._lineEdit.textChanged.connect(self._format_line)
-        self._label_unit = QtWidgets.QLabel(centralwidget)
-        self._label_unit.setGeometry(QtCore.QRect(x + 200, y, 51, 45))
-        self._label_unit.setFont(self._font)
-        self._label_unit.setAlignment(QtCore.Qt.AlignCenter)
+
         self._label_object = QtWidgets.QLabel(centralwidget)
-        self._label_object.setGeometry(QtCore.QRect(x, y, 71, 45))
+        self._label_object.setGeometry(QtCore.QRect(x, y, 69, 45))
         self._font.setPointSize(font_size)
         self._label_object.setFont(self._font)
         self._label_object.setAlignment(QtCore.Qt.AlignCenter)
         self._label_object.setText(title)
-        self._background.setToolTip('test')
+        self._editState(1)
+        self._lineEdit = QtWidgets.QLineEdit(centralwidget)
+        self._lineEdit.setGeometry(QtCore.QRect(x + 69, y, 132, 45))
+        self._font.setPointSize(16)
+        self._lineEdit.setFont(self._font)
+        self._lineEdit.setStyleSheet("background-image: url(:/baseData/lineEdit/edit_line.png);"
+                                     "border: 0; padding: 8px;")
+        self._lineEdit.setMaxLength(10)
+        self._lineEdit.textChanged.connect(self._format_line)
+        self._label_unit = QtWidgets.QLabel(centralwidget)
+        self._label_unit.setGeometry(QtCore.QRect(x + 201, y, 49, 45))
+        self._label_unit.setFont(self._font)
+        self._label_unit.setStyleSheet("background-image: url(:/baseData/lineEdit/unit.png);")
+        self._label_unit.setAlignment(QtCore.Qt.AlignCenter)
 
     def _editState(self, state):
         self._state = False
         if state == 1:
-            self._background.setPixmap(QtGui.QPixmap("imgs/lineEdit/normal.jpg"))
+            self._label_object.setStyleSheet('background-image: url(:/baseData/lineEdit/normal.png);')
         elif state == 2:
-            self._background.setPixmap(QtGui.QPixmap("imgs/lineEdit/ok.jpg"))
+            self._label_object.setStyleSheet('background-image: url(:/baseData/lineEdit/ok.png);')
             self._state = True
         elif state == 3:
-            self._background.setPixmap(QtGui.QPixmap("imgs/lineEdit/error.jpg"))
+            self._label_object.setStyleSheet('background-image: url(:/baseData/lineEdit/error.png);')
 
     def editUnit(self, new_unit, size=16):
         self._font.setPointSize(size)
@@ -180,7 +183,7 @@ class CustomLineEdit:
         t = self._lineEdit.text()
         if t == '':
             self._editState(1)
-        elif t.isdigit() and int(t) != 0:
+        elif t.isdigit() and (int(t) != 0 if self._span is None else self._span[0] <= int(t) <= self._span[1]):
             self._editState(2)
         else:
             self._editState(3)
@@ -259,7 +262,7 @@ class WinProgram(object):
         self._font.setPointSize(11)
         QtWidgets.QToolTip.setFont(self._font)
         self._info_button = QtWidgets.QPushButton(self._centralwidget)
-        self._info_button.setStyleSheet('QPushButton {image: url(imgs/info/info.png)}'
+        self._info_button.setStyleSheet('QPushButton {image: url(:/baseData/info/info.png)}'
                                         'QPushButton:disabled {image: url(imgs/info/info_disabled.png)}')
         self._info_button.setGeometry(801, 20, 35, 35)
         self._info_button.clicked.connect(self._call_guide)
@@ -285,11 +288,11 @@ class WinProgram(object):
                                                                    ((275, 170), 'M_y.sup', 12, (0, 400)),
                                                                    ((20, 220), 'M_x.inf', 12, (0, 400)),
                                                                    ((275, 220), 'M_y.inf', 12, (0, 400)),
-                                                                   (True, (275, 270), 'R_sw', 14, armatura),
-                                                                   (True, (20, 270), 'R_bt', 16, beton)))
-        with_img_scheme = QtWidgets.QLabel(self._with_reinf)
+                                                                   (True, (275, 270), 'R_sw', armatura),
+                                                                   (True, (20, 270), 'R_bt', beton)))
+        with_img_scheme = QtWidgets.QPushButton(self._with_reinf)
         with_img_scheme.setGeometry(545, 20, 291, 395)
-        with_img_scheme.setPixmap(QtGui.QPixmap("imgs/scheme/with_scheme.jpg"))
+
 
         self._without_reinf, self._without_reinf_lines = initWindowMode((((20, 20), 'h_0', 16, (70, 400)),
                                                                          ((20, 70), 'a', 16, (200, 800)),
@@ -298,10 +301,10 @@ class WinProgram(object):
                                                                          ((20, 170), 'M_sup', 14, (0, 400)),
                                                                          ((275, 170), 'M_inf', 14, (0, 400)),
                                                                          ((20, 220), 'x_0', 16),
-                                                                         (True, (20, 270), 'R_bt', 16, beton)))
+                                                                         (True, (20, 270), 'R_bt', beton)))
         without_img_scheme = QtWidgets.QLabel(self._without_reinf)
         without_img_scheme.setGeometry(545, 20, 291, 395)
-        without_img_scheme.setPixmap(QtGui.QPixmap("imgs/scheme/without_scheme.jpg"))
+        without_img_scheme.setPixmap(QtGui.QPixmap(":/baseData/scheme/without_scheme.jpg"))
         self._without_reinf.hide()
 
         self._start_calculations = QtWidgets.QPushButton(self._centralwidget)
@@ -313,16 +316,16 @@ class WinProgram(object):
 
         self._launguage_button = QtWidgets.QCheckBox(self._centralwidget)
         self._launguage_button.setGeometry(796, 485, 40, 40)
-        self._launguage_button.setStyleSheet('QCheckBox::indicator:checked {image: url(imgs/launguage/en.png);}'
-                                             'QCheckBox::indicator:unchecked {image: url(imgs/launguage/ru.png);}'
+        self._launguage_button.setStyleSheet('QCheckBox::indicator:checked {image: url(:/baseData/launguage/en.png);}'
+                                             'QCheckBox::indicator:unchecked {image: url(:/baseData/launguage/ru.png);}'
                                              'QCheckBox::indicator:disabled:checked {image: url('
-                                             'imgs/launguage/en_disabled.png);}'
+                                             ':/baseData/launguage/en_disabled.png);}'
                                              'QCheckBox::indicator:disabled:unchecked {image: url('
-                                             'imgs/launguage/ru_disabled.png);}')
+                                             ':/baseData/launguage/ru_disabled.png);}')
         self._launguage_button.stateChanged.connect(self._changeLaunguage)
 
-        self._copy_button = initButtonFile((20, 485), 1, 'imgs/file/copy')
-        self._paste_button = initButtonFile((63, 485), 2, 'imgs/file/paste')
+        self._copy_button = initButtonFile((20, 485), 1, ':/baseData/file/copy')
+        self._paste_button = initButtonFile((63, 485), 2, ':/baseData/file/paste')
 
         self._result_menu = ResultMenu(self._with_reinf_button, self._without_reinf_button, self._info_button,
                                        self._launguage_button, self._copy_button, self._paste_button,
@@ -337,7 +340,7 @@ class WinProgram(object):
     def _create_set(objects):
         timed = []
         for i in objects:
-            timed.append(int(i.get_text()) if i.get_text() != '' else None)
+            timed.append(float(i.get_text()) if i.get_text() != '' else None)
         return tuple(timed)
 
     def _change_mode(self, title):
@@ -409,22 +412,18 @@ class WinProgram(object):
         return array_values
 
     def _readFile(self):
-        try:
-            file_link = None
-            if self._status_mode == 1:
-                file_link = QFileDialog.getOpenFileName(self._centralwidget, self._changed['file'][1], './',
-                                                        self._changed['file'][2] + ' (*.calcI)')
-            elif self._status_mode == 2:
-                file_link = QFileDialog.getOpenFileName(self._centralwidget, self._changed['file'][1], './',
-                                                        self._changed['file'][2] + ' (*.calcL)')
+        file_link = None
+        if self._status_mode == 1:
+            file_link = QFileDialog.getOpenFileName(self._centralwidget, self._changed['file'][1], './',
+                                                    self._changed['file'][2] + ' (*.calcI)')
+        elif self._status_mode == 2:
+            file_link = QFileDialog.getOpenFileName(self._centralwidget, self._changed['file'][1], './',
+                                                    self._changed['file'][2] + ' (*.calcL)')
+        if file_link is not None:
             file_calc = open(str(file_link[0]), "rb")
             values = pickle.load(file_calc)
             file_calc.close()
-            print(values)
             return values
-        except:
-            QtWidgets.QMessageBox.critical(self._centralwidget, self._changed['error'][3],
-                                           self._changed['error'][4], QtWidgets.QMessageBox.Ok)
 
     def _writeFile(self, array_value):
         f_name = None
@@ -436,22 +435,25 @@ class WinProgram(object):
             file_link = QFileDialog.getSaveFileName(self._centralwidget, self._changed['file'][0], './',
                                                     self._changed['file'][2] + ' (*.calcL)')
             f_name = str(file_link[0])
-        try:
-            file_calc = open(f_name, "wb")
-            pickle.dump(array_value, file_calc)
-            file_calc.close()
-        except:
-            QtWidgets.QMessageBox.critical(self._centralwidget, self._changed['error'][2],
-                                           self._changed['error'][4], QtWidgets.QMessageBox.Ok)
+        file_calc = open(f_name, "wb")
+        pickle.dump(array_value, file_calc)
 
     def _activeFileButtons(self, type_button):
         worked = self._with_reinf_lines if self._status_mode == 1 else self._without_reinf_lines
         if type_button == 1:
-            self._writeFile(self._readLines(worked))
+            try:
+                self._writeFile(self._readLines(worked))
+            except:
+                QtWidgets.QMessageBox.critical(self._centralwidget, self._changed['error'][2],
+                                               self._changed['error'][4], QtWidgets.QMessageBox.Ok)
         elif type_button == 2:
-            array_new_values = self._readFile()
-            for line, value in zip(worked, array_new_values):
-                line.set_text(value)
+            try:
+                array_new_values = self._readFile()
+                for line, value in zip(worked, array_new_values):
+                    line.set_text(value)
+            except:
+                QtWidgets.QMessageBox.critical(self._centralwidget, self._changed['error'][3],
+                                               self._changed['error'][4], QtWidgets.QMessageBox.Ok)
 
     def _call_guide(self):
         self.exit()
