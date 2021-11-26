@@ -1,11 +1,13 @@
 import pickle
+import matplotlib.figure as fg
+import matplotlib as mpl
 
 from PyQt5 import QtCore, QtGui, QtWidgets
 from PyQt5.QtWidgets import QFileDialog
-
 from calculations.calculationsf import Calculate
 from guide import Guide
 from images import Scheme
+from matplotlib.backends.backend_agg import FigureCanvasAgg
 
 
 class ResultMenu(QtWidgets.QWidget):
@@ -66,6 +68,24 @@ class ResultMenu(QtWidgets.QWidget):
             object_red.setEnabled(True)
         self._objects[2].setToolTip(self._timed_line)
         self.hide()
+
+    @staticmethod
+    def _Latex_to_Pixmap(Latex, fs):
+        Latex = '$' + Latex + '$'
+        figure = mpl.figure.Figure()
+        figure.patch.set_facecolor('#97ff88')
+        figure.set_canvas(FigureCanvasAgg(figure))
+        renderer = figure.canvas.get_renderer()
+        ax = figure.add_axes([0, 0, 1, 1])
+        ax.axis('off')
+        t = ax.text(0, 0, Latex, ha='left', va='bottom', fontsize=fs)
+        fwidth, fheight = figure.get_size_inches()
+        fig_bbox = figure.get_window_extent(renderer)
+        text_bbox = t.get_window_extent(renderer)
+        figure.set_size_inches(text_bbox.width * fwidth / fig_bbox.width, text_bbox.height * fheight / fig_bbox.height)
+        buf, size = figure.canvas.print_to_buffer()
+        pixmap = QtGui.QPixmap(QtGui.QImage.rgbSwapped(QtGui.QImage(buf, size[0], size[1], QtGui.QImage.Format_ARGB32)))
+        return pixmap
 
 
 class CustomComboBox:
