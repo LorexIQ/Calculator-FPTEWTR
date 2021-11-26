@@ -18,29 +18,45 @@ class ResultMenu(QtWidgets.QWidget):
         self._initUi()
 
     def _initUi(self):
-        font = QtGui.QFont()
-        font.setFamily("Open Sans Condensed")
-        font.setPointSize(16)
-        font.setBold(False)
-        font.setWeight(50)
+        self._font = QtGui.QFont()
+        self._font.setFamily("Open Sans Condensed")
+        self._font.setPointSize(16)
+        self._font.setBold(False)
+        self._font.setWeight(50)
 
         self.setGeometry(0, 50, 856, 510)
-        self._img_result = QtWidgets.QLabel(self)
-        self._img_result.setGeometry(20, 20, 816, 395)
-        self._title = QtWidgets.QLabel(self)
-        self._title.setGeometry(40, 40, 776, 355)
-        self._title.setAlignment(QtCore.Qt.AlignCenter)
-        font.setPointSize(20)
-        self._title.setFont(font)
 
         self._back = QtWidgets.QPushButton(self)
         self._back.setGeometry(328, 435, 200, 40)
         self._back.setStyleSheet("background-color: #fffaea; border: 1px solid #000")
-        font.setPointSize(16)
-        self._back.setFont(font)
+        self._font.setPointSize(16)
+        self._back.setFont(self._font)
         self._back.clicked.connect(self.close_win)
 
         self.hide()
+
+    def initUiBrowser(self, mode, msg, formuls):
+        self._ScrollArea = QtWidgets.QScrollArea(self)
+        self._ScrollArea.setGeometry(20, 20, 816, 395)
+        verticalLayoutWidget = QtWidgets.QWidget()
+        verticalLayout = QtWidgets.QVBoxLayout(verticalLayoutWidget)
+
+        if mode in [1, 2]:
+            if mode == 1:
+                color = '#97fe88'
+            else:
+                color = '#ffff84'
+            verticalLayoutWidget.setStyleSheet('background: %s;' % color)
+            for formula in formuls.values():
+                label = QtWidgets.QLabel()
+                pixmap = self._Latex_to_Pixmap(formula, 14, color)
+                label.setFixedHeight(pixmap.size().height() + 10)
+                label.setPixmap(pixmap)
+                verticalLayout.addWidget(label)
+        elif mode == 3:
+            pass
+
+        self._ScrollArea.setWidget(verticalLayoutWidget)
 
     def setLabelBackButton(self, new_title):
         self._back.setText(new_title)
@@ -70,10 +86,9 @@ class ResultMenu(QtWidgets.QWidget):
         self.hide()
 
     @staticmethod
-    def _Latex_to_Pixmap(Latex, fs):
-        Latex = '$' + Latex + '$'
+    def _Latex_to_Pixmap(Latex, fs, color):
         figure = mpl.figure.Figure()
-        figure.patch.set_facecolor('#97ff88')
+        figure.patch.set_facecolor(color)
         figure.set_canvas(FigureCanvasAgg(figure))
         renderer = figure.canvas.get_renderer()
         ax = figure.add_axes([0, 0, 1, 1])
@@ -404,13 +419,14 @@ class WinProgram(object):
         result_tuple = self._create_set(array_lines)
         calc = Calculate(self._changed['calculation_class'])
         if self._status_mode == 1:
-            self._call_result_menu(*(calc.calculate_with_reinf(result_tuple), calc.get_status()))
+            self._call_result_menu(calc.calculate_with_reinf(result_tuple), calc.get_status(),
+                                   calc.get_solution_progress_inr())
         elif self._status_mode == 2:
-            self._call_result_menu(*(calc.calculate_without_reinf(result_tuple), calc.get_status()))
+            self._call_result_menu(calc.calculate_without_reinf(result_tuple), calc.get_status(),
+                                   calc.get_solution_progress_less_r())
 
-    def _call_result_menu(self, msg, type_screen):
-        self._result_menu.change_img(type_screen)
-        self._result_menu.set_title(msg)
+    def _call_result_menu(self, msg, type_screen, array_formuls):
+        self._result_menu.initUiBrowser(type_screen, msg, array_formuls)
         self._result_menu.call()
 
     @staticmethod
