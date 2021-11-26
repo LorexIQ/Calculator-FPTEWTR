@@ -2,7 +2,7 @@ from GUI import WinProgram
 from PyQt5.QtCore import Qt
 from PyQt5.QtGui import QFontDatabase, QCloseEvent
 from PyQt5.QtWidgets import QApplication, QMainWindow
-import font.Font
+import imgs.globalBaseUi
 import sys
 
 
@@ -16,8 +16,8 @@ class Widget(QMainWindow):
 
     @staticmethod
     def initFont():
-        font.Font.qInitResources()
-        QFontDatabase.addApplicationFont(":/main.ttf")
+        imgs.globalBaseUi.qInitResources()
+        QFontDatabase.addApplicationFont(":/baseData/font.ttf")
 
     def keyPressEvent(self, e):
         if e.key() == Qt.Key_Down:
