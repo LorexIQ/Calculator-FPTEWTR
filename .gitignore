@@ -7,3 +7,6 @@ guide/__pycache__/__init__.cpython-39.pyc
 guide/__pycache__/GUI.cpython-39.pyc
 imgs/comboBox/__pycache__/comboBoxUi.cpython-39.pyc
 /.idea/Calculator-FPTEWTR.iml
+images/__pycache__/__init__.cpython-39.pyc
+images/__pycache__/GUI.cpython-39.pyc
+imgs/__pycache__/globalBaseUi.cpython-39.pyc
