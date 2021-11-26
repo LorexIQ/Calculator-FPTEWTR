@@ -315,6 +315,14 @@ class WinProgram(object):
                                                                             if self._changed == self._info_ru
                                                                             else '_en') + '.png'))
 
+        def initVkIcon(title, link, pos):
+            site = QtWidgets.QLabel(
+                '<a href="%s"><img src=":/baseData/info/vk.png"/></a>' % link,
+                self._centralwidget)
+            site.setToolTip(title)
+            site.setGeometry(pos[0], pos[1], 40, 40)
+            site.setOpenExternalLinks(True)
+
         self._win_guide, self._win_scheme = None, None
         MainWindow.setFixedSize(856, 545)
         MainWindow.setWindowFlags(QtCore.Qt.CustomizeWindowHint | QtCore.Qt.WindowCloseButtonHint)
@@ -389,6 +397,9 @@ class WinProgram(object):
         self._result_menu = ResultMenu(self._with_reinf_button, self._without_reinf_button, self._info_button,
                                        self._launguage_button, self._copy_button, self._paste_button,
                                        self._centralwidget)
+
+        initVkIcon('Мурашко Дмитрий', 'https://vk.com/whedmitryel', (691, 485))
+        initVkIcon('Илларионов Владислав', 'https://vk.com/obitouchiha111', (736, 485))
 
         self._changeLaunguage()
         MainWindow.setCentralWidget(self._centralwidget)
