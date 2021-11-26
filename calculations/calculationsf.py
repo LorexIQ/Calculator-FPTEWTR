@@ -19,7 +19,7 @@ class Calculate(object):
             self.__solution_progress_lessr['I'] = '$I=\\frac{L_x^3}{3}\\frac{2(L_x+L_y)^2+L_xL_y}{u^2}=' \
                                                   '\\frac{%s^3}{3}\\frac{2(%s+%s)^2+%s*%s}{%s^2}=%s$' % \
                                                   tuple([round(i, 2) for i in [L_x, L_x, L_y, L_x, L_y, u, I]])
-            self.__solution_progress_lessr['e0'] = '$e_0=\\frac{L_x(L_x+L_y)}{u} - x_0=frac{%s(%s+%s)}{%s}=%s$' % \
+            self.__solution_progress_lessr['e0'] = '$e_0=\\frac{L_x(L_x+L_y)}{u} - x_0=\\frac{%s(%s+%s)}{%s}=%s$' % \
                                                    tuple([round(i, 2) for i in (L_x, L_x, L_y, u, e0)])
             y = L_x ** 2 / u
             W_b = I / y
