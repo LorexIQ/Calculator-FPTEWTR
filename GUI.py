@@ -31,13 +31,14 @@ class ResultMenu(QtWidgets.QWidget):
         self._back.setStyleSheet("background-color: #fffaea; border: 1px solid #000")
         self._font.setPointSize(16)
         self._back.setFont(self._font)
-        self._back.clicked.connect(self.close_win)
+        self._back.clicked.connect(self._close_win)
 
         self.hide()
 
-    def initUiBrowser(self, mode, msg, formuls):
+    def initUiBrowser(self, mode, msg, formuls, laung):
         self._ScrollArea = QtWidgets.QScrollArea(self)
         self._ScrollArea.setGeometry(20, 20, 816, 395)
+        self._ScrollArea.setHorizontalScrollBarPolicy(QtCore.Qt.ScrollBarAlwaysOff)
         verticalLayoutWidget = QtWidgets.QWidget()
         verticalLayout = QtWidgets.QVBoxLayout(verticalLayoutWidget)
         verticalLayoutWidget.setMinimumSize(816, 395)
@@ -57,35 +58,30 @@ class ResultMenu(QtWidgets.QWidget):
             verticalLayout.addWidget(label)
 
             label = QtWidgets.QLabel()
-            label.setText('\nВычисления:')
+            label.setText(laung)
             self._font.setPointSize(14)
             label.setFont(self._font)
             verticalLayout.addWidget(label)
 
-            for formula in formuls.values():
+            for formula in formuls:
                 label = QtWidgets.QLabel()
                 pixmap = self._Latex_to_Pixmap(formula, 12, color)
                 label.setFixedHeight(pixmap.size().height() + 10)
                 label.setPixmap(pixmap)
                 verticalLayout.addWidget(label)
         elif mode == 3:
-            pass
+            verticalLayoutWidget.setStyleSheet('background: #f25961;')
+            label = QtWidgets.QLabel()
+            label.setText(msg)
+            self._font.setPointSize(16)
+            label.setFont(self._font)
+            label.setAlignment(QtCore.Qt.AlignCenter)
+            verticalLayout.addWidget(label)
 
         self._ScrollArea.setWidget(verticalLayoutWidget)
 
     def setLabelBackButton(self, new_title):
         self._back.setText(new_title)
-
-    def change_img(self, img):
-        if img == 1:
-            self._img_result.setPixmap(QtGui.QPixmap('imgs/result/ok.jpg'))
-        elif img == 2:
-            self._img_result.setPixmap(QtGui.QPixmap('imgs/result/warming.jpg'))
-        elif img == 3:
-            self._img_result.setPixmap(QtGui.QPixmap('imgs/result/critical.jpg'))
-
-    def set_title(self, title):
-        self._title.setText(title)
 
     def call(self):
         for object_red in self._objects:
@@ -94,7 +90,7 @@ class ResultMenu(QtWidgets.QWidget):
         self._objects[2].setToolTip('')
         self.show()
 
-    def close_win(self):
+    def _close_win(self):
         for object_red in self._objects:
             object_red.setEnabled(True)
         self._objects[2].setToolTip(self._timed_line)
@@ -343,7 +339,7 @@ class WinProgram(object):
 
         beton = {'B10': 0.56, 'B15': 0.75, 'B20': 0.9, 'B25': 1.05, 'B30': 1.15, 'B35': 1.3, 'B40': 1.4, 'B45': 1.5,
                  'B50': 1.6, 'B55': 1.7, 'B60': 1.8}
-        armatura = {'A240': 170, 'A300': 215, 'A400': 285}
+        fittings = {'A240': 170, 'A300': 215, 'A400': 285}
 
         self._with_reinf, self._with_reinf_lines = initWindowMode((((20, 20), 'h_0', 16, (70, 400)),
                                                                    ((20, 70), 'a', 16, (200, 800)),
@@ -353,7 +349,7 @@ class WinProgram(object):
                                                                    ((275, 170), 'M_y.sup', 12, (0, 400)),
                                                                    ((20, 220), 'M_x.inf', 12, (0, 400)),
                                                                    ((275, 220), 'M_y.inf', 12, (0, 400)),
-                                                                   (True, (275, 270), 'R_sw', armatura),
+                                                                   (True, (275, 270), 'R_sw', fittings),
                                                                    (True, (20, 270), 'R_bt', beton)))
         initMiniScheme(self._with_reinf, 'with_reinf')
         initBunner(self._with_reinf)
@@ -444,7 +440,7 @@ class WinProgram(object):
                                    calc.get_solution_progress_less_r())
 
     def _call_result_menu(self, msg, type_screen, array_formuls):
-        self._result_menu.initUiBrowser(type_screen, msg, array_formuls)
+        self._result_menu.initUiBrowser(type_screen, msg, array_formuls, self._changed['calculation_class']['calc'])
         self._result_menu.call()
 
     @staticmethod
