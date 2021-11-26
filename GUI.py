@@ -40,6 +40,7 @@ class ResultMenu(QtWidgets.QWidget):
         self._ScrollArea.setGeometry(20, 20, 816, 395)
         verticalLayoutWidget = QtWidgets.QWidget()
         verticalLayout = QtWidgets.QVBoxLayout(verticalLayoutWidget)
+        verticalLayoutWidget.setMinimumSize(816, 395)
 
         if mode in [1, 2]:
             if mode == 1:
@@ -49,7 +50,7 @@ class ResultMenu(QtWidgets.QWidget):
             verticalLayoutWidget.setStyleSheet('background: %s;' % color)
             for formula in formuls.values():
                 label = QtWidgets.QLabel()
-                pixmap = self._Latex_to_Pixmap(formula, 14, color)
+                pixmap = self._Latex_to_Pixmap(formula, 12, color)
                 label.setFixedHeight(pixmap.size().height() + 10)
                 label.setPixmap(pixmap)
                 verticalLayout.addWidget(label)
