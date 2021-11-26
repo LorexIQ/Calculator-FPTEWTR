@@ -33,10 +33,9 @@ class Ui_Guide(object):
         font.setBold(False)
         font.setWeight(50)
 
-        Form.setObjectName("Form")
         Form.setFixedSize(480, 240)
         Form.setWindowFlags(QtCore.Qt.CustomizeWindowHint | QtCore.Qt.WindowCloseButtonHint)
-        Form.setWindowIcon(QtGui.QIcon('imgs/icon/main_litle.png'))
+        Form.setWindowIcon(QtGui.QIcon(':/baseData/icon/main_litle.png'))
         Form.setWindowTitle(info[0])
         scrollArea = QtWidgets.QScrollArea(Form)
         scrollArea.setGeometry(QtCore.QRect(20, 20, 121, 201))

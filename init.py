@@ -26,7 +26,7 @@ class Widget(QMainWindow):
             self.focusNextPrevChild(False)
 
     def closeEvent(self, a0: QCloseEvent) -> None:
-        self._win.exit()
+        self._win.exit(True)
 
 
 if __name__ == '__main__':

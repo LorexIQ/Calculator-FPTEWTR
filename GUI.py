@@ -6,6 +6,7 @@ from PyQt5.QtWidgets import QFileDialog
 
 from calculations.calculationsf import Calculate
 from guide import Guide
+from images import Scheme
 
 
 class ResultMenu(QtWidgets.QWidget):
@@ -254,7 +255,22 @@ class WinProgram(object):
             button.clicked.connect(lambda: self._activeFileButtons(score))
             return button
 
-        self._win_guide = None
+        def initBunner(place):
+            site = QtWidgets.QLabel(
+                '<a href="https://github.com/LorexIQ/Calculator-FPTEWTR"><img src=":/baseData/site.png"/></a>', place)
+            site.setGeometry(20, 335, 505, 80)
+            site.setOpenExternalLinks(True)
+
+        def initMiniScheme(place, link):
+            with_img_scheme = QtWidgets.QPushButton(place)
+            with_img_scheme.setGeometry(545, 20, 291, 395)
+            with_img_scheme.setStyleSheet("QPushButton {background-image: url(:/baseData/scheme/%s.png); border: 0;}"
+                                          "QPushButton:pressed {border: 0;}"
+                                          "QPushButton:hover {background-image: url(:/baseData/scheme/%s_blur.png)}" %
+                                          (link, link))
+            with_img_scheme.clicked.connect(lambda: self._call_image_scheme(':/baseData/schemeFull/%s.png' % link))
+
+        self._win_guide, self._win_scheme = None, None
         MainWindow.setFixedSize(856, 545)
         MainWindow.setWindowFlags(QtCore.Qt.CustomizeWindowHint | QtCore.Qt.WindowCloseButtonHint)
         MainWindow.setWindowIcon(QtGui.QIcon('imgs/icon/main_litle.png'))
@@ -290,9 +306,8 @@ class WinProgram(object):
                                                                    ((275, 220), 'M_y.inf', 12, (0, 400)),
                                                                    (True, (275, 270), 'R_sw', armatura),
                                                                    (True, (20, 270), 'R_bt', beton)))
-        with_img_scheme = QtWidgets.QPushButton(self._with_reinf)
-        with_img_scheme.setGeometry(545, 20, 291, 395)
-
+        initMiniScheme(self._with_reinf, 'with_reinf')
+        initBunner(self._with_reinf)
 
         self._without_reinf, self._without_reinf_lines = initWindowMode((((20, 20), 'h_0', 16, (70, 400)),
                                                                          ((20, 70), 'a', 16, (200, 800)),
@@ -302,9 +317,8 @@ class WinProgram(object):
                                                                          ((275, 170), 'M_inf', 14, (0, 400)),
                                                                          ((20, 220), 'x_0', 16),
                                                                          (True, (20, 270), 'R_bt', beton)))
-        without_img_scheme = QtWidgets.QLabel(self._without_reinf)
-        without_img_scheme.setGeometry(545, 20, 291, 395)
-        without_img_scheme.setPixmap(QtGui.QPixmap(":/baseData/scheme/without_scheme.jpg"))
+        initMiniScheme(self._without_reinf, 'without_reinf')
+        initBunner(self._without_reinf)
         self._without_reinf.hide()
 
         self._start_calculations = QtWidgets.QPushButton(self._centralwidget)
@@ -461,6 +475,13 @@ class WinProgram(object):
         self._win_guide.show()
         self._win_guide.activateWindow()
 
-    def exit(self):
+    def _call_image_scheme(self, link):
+        self._win_scheme = Scheme(link)
+        self._win_scheme.show()
+        self._win_scheme.activateWindow()
+
+    def exit(self, mode=False):
         if self._win_guide is not None:
             self._win_guide.close()
+        if mode and self._win_scheme is not None:
+            self._win_scheme.close()
