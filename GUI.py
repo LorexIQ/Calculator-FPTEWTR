@@ -48,6 +48,20 @@ class ResultMenu(QtWidgets.QWidget):
             else:
                 color = '#ffff84'
             verticalLayoutWidget.setStyleSheet('background: %s;' % color)
+
+            label = QtWidgets.QLabel()
+            label.setText(msg)
+            self._font.setPointSize(16)
+            label.setFont(self._font)
+            label.setAlignment(QtCore.Qt.AlignCenter)
+            verticalLayout.addWidget(label)
+
+            label = QtWidgets.QLabel()
+            label.setText('\nВычисления:')
+            self._font.setPointSize(14)
+            label.setFont(self._font)
+            verticalLayout.addWidget(label)
+
             for formula in formuls.values():
                 label = QtWidgets.QLabel()
                 pixmap = self._Latex_to_Pixmap(formula, 12, color)
@@ -389,7 +403,10 @@ class WinProgram(object):
     def _create_set(objects):
         timed = []
         for i in objects:
-            timed.append(float(i.get_text()) if i.get_text() != '' else None)
+            value = float(i.get_text()) if i.get_text() != '' else None
+            if int(value == value):
+                value = int(value)
+            timed.append(value)
         return tuple(timed)
 
     def _change_mode(self, title):
