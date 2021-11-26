@@ -1,6 +1,4 @@
 import pickle
-import matplotlib.figure as fg
-import matplotlib as mpl
 
 from PyQt5 import QtCore, QtGui, QtWidgets
 from PyQt5.QtWidgets import QFileDialog
@@ -8,6 +6,7 @@ from calculations.calculationsf import Calculate
 from guide import Guide
 from images import Scheme
 from matplotlib.backends.backend_agg import FigureCanvasAgg
+from matplotlib.figure import Figure
 
 
 class ResultMenu(QtWidgets.QWidget):
@@ -98,7 +97,7 @@ class ResultMenu(QtWidgets.QWidget):
 
     @staticmethod
     def _Latex_to_Pixmap(Latex, fs, color):
-        figure = mpl.figure.Figure()
+        figure = Figure()
         figure.patch.set_facecolor(color)
         figure.set_canvas(FigureCanvasAgg(figure))
         renderer = figure.canvas.get_renderer()
@@ -320,7 +319,7 @@ class WinProgram(object):
         self._win_guide, self._win_scheme = None, None
         MainWindow.setFixedSize(856, 545)
         MainWindow.setWindowFlags(QtCore.Qt.CustomizeWindowHint | QtCore.Qt.WindowCloseButtonHint)
-        MainWindow.setWindowIcon(QtGui.QIcon('imgs/icon/main_litle.png'))
+        MainWindow.setWindowIcon(QtGui.QIcon(':/baseData/icon/main_litle.png'))
         self._centralwidget = QtWidgets.QWidget(MainWindow)
         self._font.setPointSize(11)
         QtWidgets.QToolTip.setFont(self._font)
@@ -402,7 +401,7 @@ class WinProgram(object):
         timed = []
         for i in objects:
             value = float(i.get_text()) if i.get_text() != '' else None
-            if int(value == value):
+            if int(value) == value:
                 value = int(value)
             timed.append(value)
         return tuple(timed)
