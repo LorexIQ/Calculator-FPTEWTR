@@ -32,7 +32,7 @@ class Calculate(object):
             M -= Fe0
             self.__solution_progress_lessr.append(
                 '$M=M-Fe_0=%s-%s=%s$' % tuple([round(i, 2) for i in (M_loc / 2, Fe0, M)]))
-            self.__solution_progress_lessr.append('$\\frac{F}{u}+\\frac{M}{W_b} \\leq R_{bt}h_0 ; ' 
+            self.__solution_progress_lessr.append('$\\frac{F}{u}+\\frac{M}{W_b} \\leq R_{bt}h_0 ; '
                                                   '\\frac{%s}{%s}+\\frac{%s}{%s}=%s \\leq %s*%s=%s$' %
                                                   tuple([round(i, 2) for i in (N * 1000, u, M * 10 ** 6, W_b,
                                                                                N * 1000 / u + M * 10 ** 6 / W_b,
@@ -82,7 +82,7 @@ class Calculate(object):
                 '$W_{b,x}=(a+h_0)(\\frac{a+h0}{3}+b+h_0)=(%s+%s)(\\frac{%s+%s}{3}+%s+%s)=%s$' % tuple(
                     [round(i, 2) for i in (a, h0, a, h0, b, h0, W_bx)]))
             self.__solution_progress_inr.append(
-                '$W_{b,x}=(b+h_0)(\\frac{b+h0}{3}+a+h_0)=(%s+%s)(\\frac{%s+%s}{3}+%s+%s)=%s$' % tuple(
+                '$W_{b,y}=(b+h_0)(\\frac{b+h0}{3}+a+h_0)=(%s+%s)(\\frac{%s+%s}{3}+%s+%s)=%s$' % tuple(
                     [round(i, 2) for i in (b, h0, b, h0, a, h0, W_by)]))
             M_x = (M_xsup + M_xinf) / 2
             M_y = (M_ysup + M_yinf) / 2
@@ -117,16 +117,25 @@ class Calculate(object):
                 return_line += '\n'
             if (F / u) + (M_x / W_bx) + (M_y / W_by) > R_bt * h0:
                 self.__status_calculations = 2
+                self.__solution_progress_inr.append(
+                    '$\\frac{F}{u} + \\frac{M_x}{W_{b,x}} + \\frac{M_y}{W_{b,y}} = '
+                    '\\frac{%s}{%s} + \\frac{%s}{%s} + \\frac{%s}{%s} = %s > '
+                    'R_{bt}h_0 = %s*%s = %s$' % tuple([round(i, 2) for i in (F, u, M_x, W_bx, M_y,
+                                                                             W_by, ((F * 10 ** 3) / u)
+                                                                             + ((M_x * 10 ** 6) / W_bx) +
+                                                                             ((M_y * 10 ** 6) / W_by),
+                                                                             R_bt, h0, R_bt * h0)]))
                 return self._launguage['with'][5]
             else:
                 if 0.25 * R_bt * h0 > q_sw:
                     q_sw = 0
-                self.__solution_progress_inr.append('$\\frac{F}{u} + \\frac{M_x}{W_{b,x}} + '
-                                                    '\\frac{M_y}{W_{b,y}}=\\frac{%s}{%s} + \\frac{%s}{%s}} + '
-                                                    '\\frac{%s}{%s}=%s ; R_{bt}h_0 + 0.8q_{sw}=%s%s+ 0.8%s =%s$' %
-                                                    tuple([round(i, 2) for i in (F, u, M_x, W_bx, M_y, W_by, (F / u) +
-                                                                                 (M_x / W_bx) + (M_y / W_by), R_bt, h0,
-                                                                                 q_sw, R_bt * h0 + 0.8 * q_sw)]))
+                    self.__solution_progress_inr.append('$\\frac{F}{u} + \\frac{M_x}{W_{b,x}} + \\frac{M_y}{W_{b,y}} = '
+                                                        '\\frac{%s}{%s} + \\frac{%s}{%s} + \\frac{%s}{%s} = %s < '
+                                                        'R_{bt}h_0 + 0.8q_{sw} = %s*%s+0.8*%s = %s$' %
+                                                        tuple([round(i, 2) for i in (F, u, M_x, W_bx, M_y, W_by,
+                                                                                     (F / u) + (M_x / W_bx) +
+                                                                                     (M_y / W_by), R_bt, h0,
+                                                                                     q_sw, R_bt * h0 + 0.8 * q_sw)]))
                 if (F / u) + (M_x / W_bx) + (M_y / W_by) < R_bt * h0 + 0.8 * q_sw:
                     a_new = a + 2 * (second_row + 4 * s_w) + h0
                     b_new = b + 2 * (second_row + 4 * s_w) + h0
@@ -137,21 +146,30 @@ class Calculate(object):
                                                         '\\frac{%s+%s}{3}+%s+%s)=%s$' % tuple([round(i, 2) for i in
                                                                                                (a_new, h0, a_new, h0,
                                                                                                 b_new, h0, W_bx_new)]))
-                    self.__solution_progress_inr.append('$W_{b,x}=(b+h_0)(\\frac{b+h0}{3}+a+h_0)=(%s+%s)('
+                    self.__solution_progress_inr.append('$W_{b,y}=(b+h_0)(\\frac{b+h0}{3}+a+h_0)=(%s+%s)('
                                                         '\\frac{%s+%s}{3}+%s+%s)=%s$' %
                                                         tuple([round(i, 2) for i in (b_new, h0, b_new, h0, a_new, h0,
                                                                                      W_by_new)]))
-                    self.__solution_progress_inr.append('$\\frac{F}{u} + \\frac{M_x}{W_{b,x}} + \\frac{M_y}{W_{b,y}}='
-                                                        '\\frac{%s}{%s} + \\frac{%s}{%s}} + \\frac{%s}{%s}=%s ; '
-                                                        'R_{bt}h_0 + 0.8q_{sw}=%s%s =%s$' %
+                    self.__solution_progress_inr.append('$\\frac{F}{u} + \\frac{M_x}{W_{b,x}} + \\frac{M_y}{W_{b,y}} = '
+                                                        '\\frac{%s}{%s} + \\frac{%s}{%s} + \\frac{%s}{%s} = %s < '
+                                                        'R_{bt}h_0 + 0.8q_{sw} = %s*%s+0.8*%s = %s$' %
                                                         tuple([round(i, 2) for i in (F, u_new, M_x, W_bx_new, M_y,
                                                                                      W_by_new, ((F * 10 ** 3) / u_new)
                                                                                      + ((M_x * 10 ** 6) / W_bx_new) +
                                                                                      ((M_y * 10 ** 6) / W_by_new),
-                                                                                     R_bt, h0, R_bt * h0)]))
+                                                                                     R_bt, h0,
+                                                                                     q_sw, R_bt * h0 + 0.8 * q_sw)]))
                     if ((F * 10 ** 3) / u_new) + ((M_x * 10 ** 6) / W_bx_new) + \
                             ((M_y * 10 ** 6) / W_by_new) < R_bt * h0:
                         self.__status_calculations = 1
+                        self.__solution_progress_inr.append(
+                            '$\\frac{F}{u} + \\frac{M_x}{W_{b,x}} + \\frac{M_y}{W_{b,y}} = '
+                            '\\frac{%s}{%s} + \\frac{%s}{%s} + \\frac{%s}{%s} = %s < '
+                            'R_{bt}h_0 = %s*%s = %s$' % tuple([round(i, 2) for i in (F, u_new, M_x, W_bx_new, M_y,
+                                                                                     W_by_new, ((F * 10 ** 3) / u_new)
+                                                                                     + ((M_x * 10 ** 6) / W_bx_new) +
+                                                                                     ((M_y * 10 ** 6) / W_by_new),
+                                                                                     R_bt, h0, R_bt * h0)]))
                         return return_line + self._launguage['with'][6] % (s_w_count - 1, first_row)
             self.__status_calculations = 2
             return self._launguage['with'][7]

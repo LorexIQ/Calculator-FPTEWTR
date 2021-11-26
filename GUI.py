@@ -37,7 +37,6 @@ class ResultMenu(QtWidgets.QWidget):
     def initUiBrowser(self, mode, msg, formuls, laung):
         self._ScrollArea = QtWidgets.QScrollArea(self)
         self._ScrollArea.setGeometry(20, 20, 816, 395)
-        self._ScrollArea.setHorizontalScrollBarPolicy(QtCore.Qt.ScrollBarAlwaysOff)
         verticalLayoutWidget = QtWidgets.QWidget()
         verticalLayout = QtWidgets.QVBoxLayout(verticalLayoutWidget)
         verticalLayoutWidget.setMinimumSize(816, 395)
