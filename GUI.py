@@ -14,6 +14,7 @@ class ResultMenu(QtWidgets.QWidget):
         QtWidgets.QWidget.__init__(self, *args[6:])
         self._objects = args[:6]
         self._timed_line = ''
+        self._title_file = ''
         self._initUi()
 
     def _initUi(self):
@@ -32,21 +33,27 @@ class ResultMenu(QtWidgets.QWidget):
         self._back.setFont(self._font)
         self._back.clicked.connect(self._close_win)
 
+        button = QtWidgets.QPushButton(self)
+        button.setGeometry(20, 435, 40, 40)
+        button.setStyleSheet('QPushButton {image: url(:/baseData/file/copy.png);}'
+                             'QPushButton:disabled {image: url(:/baseData/file/copy_disabled.png);}')
+        button.clicked.connect(self._saveFile)
+
         self.hide()
 
     def initUiBrowser(self, mode, msg, formuls, laung):
         self._ScrollArea = QtWidgets.QScrollArea(self)
         self._ScrollArea.setGeometry(20, 20, 816, 395)
-        verticalLayoutWidget = QtWidgets.QWidget()
-        verticalLayout = QtWidgets.QVBoxLayout(verticalLayoutWidget)
-        verticalLayoutWidget.setMinimumSize(816, 395)
+        self._verticalLayoutWidget = QtWidgets.QWidget()
+        verticalLayout = QtWidgets.QVBoxLayout(self._verticalLayoutWidget)
+        self._verticalLayoutWidget.setMinimumSize(816, 395)
 
         if mode in [1, 2]:
             if mode == 1:
                 color = '#97fe88'
             else:
                 color = '#ffff84'
-            verticalLayoutWidget.setStyleSheet('background: %s;' % color)
+            self._verticalLayoutWidget.setStyleSheet('background: %s;' % color)
 
             label = QtWidgets.QLabel()
             label.setText(msg)
@@ -68,7 +75,7 @@ class ResultMenu(QtWidgets.QWidget):
                 label.setPixmap(pixmap)
                 verticalLayout.addWidget(label)
         elif mode == 3:
-            verticalLayoutWidget.setStyleSheet('background: #f25961;')
+            self._verticalLayoutWidget.setStyleSheet('background: #f25961;')
             label = QtWidgets.QLabel()
             label.setText(msg)
             self._font.setPointSize(16)
@@ -76,14 +83,22 @@ class ResultMenu(QtWidgets.QWidget):
             label.setAlignment(QtCore.Qt.AlignCenter)
             verticalLayout.addWidget(label)
 
-        self._ScrollArea.setWidget(verticalLayoutWidget)
+        self._ScrollArea.setWidget(self._verticalLayoutWidget)
 
-    def setLabelBackButton(self, new_title):
+    def _saveFile(self):
+        file_link = QFileDialog.getSaveFileName(self, self._title_file[3], './',
+                                                self._title_file[4] + ' (*.png)')
+        if file_link[0] != '':
+            self._verticalLayoutWidget.grab().save(file_link[0], 'png')
+
+    def setLabels(self, new_title, new_title_file):
         self._back.setText(new_title)
+        self._title_file = new_title_file
 
     def call(self):
         for object_red in self._objects:
             object_red.setEnabled(False)
+        self._objects[-1].hide()
         self._timed_line = self._objects[2].toolTip()
         self._objects[2].setToolTip('')
         self.show()
@@ -91,6 +106,7 @@ class ResultMenu(QtWidgets.QWidget):
     def _close_win(self):
         for object_red in self._objects:
             object_red.setEnabled(True)
+        self._objects[-1].show()
         self._objects[2].setToolTip(self._timed_line)
         self.hide()
 
@@ -332,7 +348,7 @@ class WinProgram(object):
         QtWidgets.QToolTip.setFont(self._font)
         self._info_button = QtWidgets.QPushButton(self._centralwidget)
         self._info_button.setStyleSheet('QPushButton {image: url(:/baseData/info/info.png)}'
-                                        'QPushButton:disabled {image: url(imgs/info/info_disabled.png)}')
+                                        'QPushButton:disabled {image: url(:/baseData/info/info_disabled.png)}')
         self._info_button.setGeometry(801, 20, 35, 35)
         self._info_button.clicked.connect(self._call_guide)
         widget = QtWidgets.QWidget(self._centralwidget)
@@ -476,7 +492,7 @@ class WinProgram(object):
         for i in self._without_reinf_lines:
             called = self._changed['without_edit_unit'][i.getObject()]
             i.editUnit(called[0], called[1])
-        self._result_menu.setLabelBackButton(self._changed['back'])
+        self._result_menu.setLabels(self._changed['back'], self._changed['file'])
 
     @staticmethod
     def _readLines(objects):
