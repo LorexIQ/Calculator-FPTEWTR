@@ -248,16 +248,6 @@ class CustomLineEdit:
         else:
             self._editState(3)
 
-    def change_enabled(self):
-        if self._enable:
-            self._lineEdit.setEnabled(False)
-            self._editState(4)
-            self._enable = False
-        else:
-            self._lineEdit.setEnabled(True)
-            self._enable = True
-            self._format_line()
-
     def getObject(self):
         return self._label_object.text()
 
